@@ -59,7 +59,7 @@
                                 </td>
                                 <td class="text-center">
                                     <button class="btn btn-xs btn-default" data-toggle="modal" data-target="#editPrebot{{ $prebot->id }}">Edit</button>
-                                    <form method="POST" action="{{ route('admin.aurex.prebots.delete', $prebot) }}" style="display:inline" onsubmit="return confirm('Delete {{ $prebot->name }}?')">
+                                    <form method="POST" action="{{ route('admin.aurex.prebots.delete', $prebot->id) }}" style="display:inline" onsubmit="return confirm('Delete {{ $prebot->name }}?')">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-xs btn-danger">Delete</button>
                                     </form>
@@ -69,7 +69,7 @@
                             {{-- Edit modal --}}
                             <div class="modal fade" id="editPrebot{{ $prebot->id }}" tabindex="-1">
                                 <div class="modal-dialog"><div class="modal-content">
-                                    <form method="POST" action="{{ route('admin.aurex.prebots.update', $prebot) }}">
+                                    <form method="POST" action="{{ route('admin.aurex.prebots.update', $prebot->id) }}">
                                         @csrf @method('PATCH')
                                         <div class="modal-header"><h4 class="modal-title">Edit {{ $prebot->name }}</h4></div>
                                         <div class="modal-body">
