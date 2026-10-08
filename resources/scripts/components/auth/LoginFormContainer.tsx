@@ -55,7 +55,6 @@ export default forwardRef<HTMLFormElement, Props>(({ title, ...props }, ref) => 
                     alt={'Aurex'}
                     draggable={false}
                     css={tw`block w-64 md:w-80 mx-auto select-none`}
-                    style={{ mixBlendMode: 'screen' }}
                 />
                 {title && <GoldTitle>{title}</GoldTitle>}
                 <div css={tw`mt-2`}>{props.children}</div>
