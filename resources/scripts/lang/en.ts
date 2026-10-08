@@ -6,6 +6,7 @@ const en = {
     nav: {
         dashboard: 'Dashboard',
         store: 'Aurex Store',
+        prebots: 'PreBots',
         admin: 'Admin',
         accountSettings: 'Account Settings',
         signOut: 'Sign Out',
@@ -159,6 +160,16 @@ const en = {
         statusApproved: 'Approved',
         statusRejected: 'Rejected',
         adminNote: 'Admin note',
+    },
+    prebots: {
+        title: 'PreBots',
+        subtitle: 'Deploy pre-made WhatsApp bots with coins. One click — your bot is live!',
+        howItWorks: 'Pick a bot, give it a name, and hit Deploy. Your bot server is created instantly — open its console and scan the QR code with WhatsApp to link your number. Use a spare number, not your personal one!',
+        empty: 'No bots available right now. Please check back later.',
+        featured: 'Featured',
+        deploy: 'Deploy Bot',
+        deployed: 'Bot deployed!',
+        botNamePlaceholder: 'My bot name',
     },
 };
 

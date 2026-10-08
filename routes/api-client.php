@@ -67,6 +67,20 @@ Route::prefix('/store')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Aurex PreBots API
+|
+| Endpoint: /api/client/prebots
+|
+*/
+Route::prefix('/prebots')->group(function () {
+    Route::get('/', [Client\PrebotController::class, 'index'])->name('api:client.prebots');
+    Route::post('/purchase', [Client\PrebotController::class, 'purchase'])
+        ->middleware('throttle:5,1')
+        ->name('api:client.prebots.purchase');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Aurex Manual Top-Ups API
 |--------------------------------------------------------------------------
 |

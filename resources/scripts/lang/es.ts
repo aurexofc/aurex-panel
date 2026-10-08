@@ -6,6 +6,7 @@ const es = {
     nav: {
         dashboard: 'Panel',
         store: 'Tienda Aurex',
+        prebots: 'PreBots',
         admin: 'Administración',
         accountSettings: 'Configuración de cuenta',
         signOut: 'Cerrar sesión',
@@ -161,6 +162,16 @@ const es = {
         statusApproved: 'Aprobada',
         statusRejected: 'Rechazada',
         adminNote: 'Nota del administrador',
+    },
+    prebots: {
+        title: 'PreBots',
+        subtitle: 'Despliega bots de WhatsApp listos con monedas. ¡Un clic y tu bot está en línea!',
+        howItWorks: 'Elige un bot, ponle un nombre y pulsa Desplegar. Tu servidor se crea al instante — abre su consola y escanea el código QR con WhatsApp para vincular tu número. ¡Usa un número secundario, no tu personal!',
+        empty: 'No hay bots disponibles ahora. Vuelve más tarde.',
+        featured: 'Destacado',
+        deploy: 'Desplegar Bot',
+        deployed: '¡Bot desplegado!',
+        botNamePlaceholder: 'Nombre de mi bot',
     },
 };
 

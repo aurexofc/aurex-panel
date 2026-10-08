@@ -243,6 +243,11 @@ Route::group(['prefix' => 'aurex'], function () {
     Route::patch('/plans/{plan}', [Admin\Aurex\PlanController::class, 'update'])->name('admin.aurex.plans.update');
     Route::delete('/plans/{plan}', [Admin\Aurex\PlanController::class, 'destroy'])->name('admin.aurex.plans.delete');
 
+    Route::get('/prebots', [Admin\Aurex\PrebotController::class, 'index'])->name('admin.aurex.prebots');
+    Route::post('/prebots', [Admin\Aurex\PrebotController::class, 'store']);
+    Route::patch('/prebots/{prebot}', [Admin\Aurex\PrebotController::class, 'update'])->name('admin.aurex.prebots.update');
+    Route::delete('/prebots/{prebot}', [Admin\Aurex\PrebotController::class, 'destroy'])->name('admin.aurex.prebots.delete');
+
     Route::get('/coins', [Admin\Aurex\CoinController::class, 'index'])->name('admin.aurex.coins');
     Route::post('/coins/grant', [Admin\Aurex\CoinController::class, 'grant'])->name('admin.aurex.coins.grant');
 

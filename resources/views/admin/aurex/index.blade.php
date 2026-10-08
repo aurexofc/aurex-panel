@@ -64,6 +64,15 @@
     </div>
     <div class="col-xs-12 col-md-4">
         <div class="box box-warning">
+            <div class="box-header with-border"><h3 class="box-title">PreBots</h3></div>
+            <div class="box-body">
+                <p class="text-muted">Pre-made WhatsApp bots users deploy with coins.</p>
+                <a href="{{ route('admin.aurex.prebots') }}" class="btn btn-warning btn-block">Manage PreBots</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-4">
+        <div class="box box-warning">
             <div class="box-header with-border"><h3 class="box-title">Coins</h3></div>
             <div class="box-body">
                 <p class="text-muted">Search any user and grant or deduct coins manually.</p>
