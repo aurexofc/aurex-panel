@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400">
+  <defs>
+    <!-- Gold gradient for text -->
+    <linearGradient id="goldText" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8B6914">
+        <animate attributeName="stop-color" values="#8B6914;#D4AF37;#F9E7A0;#D4AF37;#8B6914" dur="4s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="50%" stop-color="#F9E7A0">
+        <animate attributeName="stop-color" values="#F9E7A0;#8B6914;#D4AF37;#F9E7A0;#F9E7A0" dur="4s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#D4AF37">
+        <animate attributeName="stop-color" values="#D4AF37;#F9E7A0;#8B6914;#D4AF37;#D4AF37" dur="4s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <!-- Shimmer sweep -->
+    <linearGradient id="shimmer" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="45%" stop-color="transparent"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.6"/>
+      <stop offset="55%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="transparent"/>
+      <animateTransform attributeName="gradientTransform" type="translate" values="-1.5 0; 1.5 0; -1.5 0" dur="5s" repeatCount="indefinite"/>
+    </linearGradient>
+    <!-- Glow filter -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <!-- Background gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#1a2040"/>
+      <stop offset="60%" stop-color="#0d1128"/>
+      <stop offset="100%" stop-color="#070a18"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="400" fill="url(#bgGrad)" rx="20"/>
+
+  <!-- Floating gold particles -->
+  <g fill="#D4AF37">
+    <circle cx="150" cy="80" r="3" opacity="0.6">
+      <animate attributeName="cy" values="80;60;80" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;0.1;0.6" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="1050" cy="120" r="4" opacity="0.5">
+      <animate attributeName="cy" values="120;100;120" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0.1;0.5" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="900" cy="300" r="2.5" opacity="0.7">
+      <animate attributeName="cy" values="300;280;300" dur="3.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.7;0.2;0.7" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="300" cy="320" r="3.5" opacity="0.4">
+      <animate attributeName="cy" values="320;300;320" dur="4.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.1;0.4" dur="4.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="600" cy="60" r="2" opacity="0.8">
+      <animate attributeName="cy" values="60;45;60" dur="2.8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.8;0.2;0.8" dur="2.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="750" cy="340" r="3" opacity="0.5">
+      <animate attributeName="cy" values="340;320;340" dur="3.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0.1;0.5" dur="3.2s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Crown -->
+  <g transform="translate(600,88)" opacity="0.95" filter="url(#glow)">
+    <animateTransform attributeName="transform" type="translate" values="600,88; 600,82; 600,88" dur="3s" repeatCount="indefinite" additive="replace"/>
+    <path d="M-45,15 L-38,-18 L-20,-2 L-8,-28 L0,-8 L8,-28 L20,-2 L38,-18 L45,15 Z"
+          fill="url(#goldText)" stroke="#F9E7A0" stroke-width="1.5"/>
+    <rect x="-45" y="15" width="90" height="10" rx="3" fill="url(#goldText)"/>
+    <circle cx="-38" cy="-20" r="4" fill="#F9E7A0"/>
+    <circle cx="0" cy="-10" r="4" fill="#F9E7A0"/>
+    <circle cx="38" cy="-20" r="4" fill="#F9E7A0"/>
+  </g>
+
+  <!-- AUREX Title with shimmer -->
+  <text x="600" y="230" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="120" font-weight="bold" letter-spacing="18" fill="url(#goldText)" filter="url(#glow)">
+    AUREX
+    <animate attributeName="opacity" values="1;0.92;1" dur="3s" repeatCount="indefinite"/>
+  </text>
+  <!-- Shimmer overlay -->
+  <text x="600" y="230" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-size="120" font-weight="bold" letter-spacing="18" fill="url(#shimmer)">
+    AUREX
+  </text>
+
+  <!-- Divider line with pulse -->
+  <line x1="350" y1="270" x2="850" y2="270" stroke="url(#goldText)" stroke-width="2" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2.5s" repeatCount="indefinite"/>
+  </line>
+  <polygon points="600,262 608,270 600,278 592,270" fill="#D4AF37">
+    <animate attributeName="opacity" values="1;0.4;1" dur="2.5s" repeatCount="indefinite"/>
+  </polygon>
+
+  <!-- Subtitle -->
+  <text x="600" y="315" text-anchor="middle" font-family="Georgia, serif"
+        font-size="28" letter-spacing="10" fill="#D4AF37" opacity="0.9">
+    PREMIUM GAME SERVER PANEL
+    <animate attributeName="opacity" values="0.9;0.5;0.9" dur="4s" repeatCount="indefinite"/>
+  </text>
+
+  <!-- Tagline -->
+  <text x="600" y="350" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="16" letter-spacing="4" fill="#8a8fa8">
+    DEPLOY WITH COINS — NO CREDIT CARD NEEDED
+  </text>
+</svg>

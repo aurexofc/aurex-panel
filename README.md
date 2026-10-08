@@ -1,12 +1,8 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:D4AF37,100:8B6914&height=180&section=header&text=AUREX&fontSize=60&fontColor=ffffff&animation=fadeIn&fontAlignY=38" alt="Aurex Header"/>
+<img src="public/assets/aurex-banner.svg" alt="Aurex VIP Banner" width="100%"/>
 
 <img src="public/assets/aurex-logo.png" alt="Aurex Logo" width="160"/>
-
-[![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Cinzel&weight=600&size=28&duration=3000&pause=1000&color=D4AF37&center=true&vCenter=true&width=600&lines=The+Premium+Game+Server+Panel;Deploy+With+Coins%2C+Not+Credit+Cards;Minecraft+%E2%80%A2+Rust+%E2%80%A2+ARK+%E2%80%A2+FiveM)](https://git.io/typing-svg)
-
-**Deploy Minecraft, Rust, ARK & 100+ game servers with coins — no credit card needed.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-gold?style=for-the-badge)](LICENSE)
 [![PHP 8.2](https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
@@ -315,11 +311,7 @@ MIT License — see [LICENSE](LICENSE.md) for details.
 
 *If Aurex helped you host your first server, drop a ⭐ — it keeps the project alive!*
 
-<br>
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:8B6914,100:D4AF37&height=120&section=footer&animation=fadeIn" alt="Aurex Footer"/>
-
-<br>
+</div>
 
 `game-server` `minecraft-server` `pterodactyl` `game-hosting` `free-hosting` `rust-server` `ark-server` `fivem-server` `server-panel` `coin-economy` `rewarded-ads` `whatsapp-api` `laravel` `react` `docker` `self-hosted` `gaming` `esports`
 
