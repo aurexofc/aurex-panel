@@ -204,10 +204,10 @@ do_install() {
     print_step "[2/7] Downloading Aurex"
     {
         mkdir -p ${INSTALL_DIR}
-        curl -sSL "https://muse.ai/files/1383761198145232/2004579870242490/v15ajysahpu9s69jrb7atgs3/aurex-source.zip" -o /tmp/aurex.zip
-        unzip -q -o /tmp/aurex.zip -d /tmp/
+        git clone --depth 1 --branch 1.0-develop https://github.com/aurexofc/aurex-panel.git /tmp/aurex-panel
         cp -r /tmp/aurex-panel/* ${INSTALL_DIR}/
-        rm -rf /tmp/aurex-panel /tmp/aurex.zip
+        cp -r /tmp/aurex-panel/.env.example ${INSTALL_DIR}/ 2>/dev/null || true
+        rm -rf /tmp/aurex-panel
         curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer -q
     } &> /tmp/aurex-install.log &
     spinner $! "Downloading source code"
