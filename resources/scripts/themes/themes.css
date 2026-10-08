@@ -1,0 +1,115 @@
+/**
+ * Aurex runtime themes.
+ *
+ * The Tailwind `aurex` / `primary` palettes resolve to these CSS variables
+ * (see tailwind.config.js), so switching `data-theme` on <html> recolors the
+ * whole UI instantly with no rebuild. Values are RGB triplets so Tailwind's
+ * opacity modifiers (e.g. bg-aurex-500/50) keep working.
+ *
+ * Panel chrome variables (--aurex-bg, --aurex-surface, --aurex-text, …)
+ * tint the page background, cards, borders and text per theme, while the
+ * gold decorative gradients (icon badges, accent bars) stay gold as brand.
+ *
+ * :root defaults to the gold theme so the first paint is always correct.
+ */
+
+:root,
+[data-theme='gold'] {
+    --aurex-50: 251 247 236;
+    --aurex-100: 246 235 201;
+    --aurex-200: 237 214 143;
+    --aurex-300: 227 189 85;
+    --aurex-400: 217 166 46;
+    --aurex-500: 201 143 27;
+    --aurex-600: 169 119 21;
+    --aurex-700: 135 94 20;
+    --aurex-800: 111 76 21;
+    --aurex-900: 95 64 21;
+    --aurex-bg: 10 14 26;
+    --aurex-bg-2: 20 26 42;
+    --aurex-surface: 26 33 53;
+    --aurex-surface-2: 18 24 38;
+    --aurex-border: 45 55 80;
+    --aurex-text: 235 238 245;
+    --aurex-text-dim: 139 149 167;
+}
+
+[data-theme='crimson'] {
+    --aurex-50: 254 242 242;
+    --aurex-100: 254 226 226;
+    --aurex-200: 254 202 202;
+    --aurex-300: 252 165 165;
+    --aurex-400: 248 113 113;
+    --aurex-500: 239 68 68;
+    --aurex-600: 220 38 38;
+    --aurex-700: 185 28 28;
+    --aurex-800: 153 27 27;
+    --aurex-900: 127 29 29;
+    --aurex-bg: 26 10 12;
+    --aurex-bg-2: 42 20 22;
+    --aurex-surface: 53 26 28;
+    --aurex-surface-2: 38 18 20;
+    --aurex-border: 80 45 48;
+    --aurex-text: 245 235 235;
+    --aurex-text-dim: 167 139 140;
+}
+
+[data-theme='ocean'] {
+    --aurex-50: 239 246 255;
+    --aurex-100: 219 234 254;
+    --aurex-200: 191 219 254;
+    --aurex-300: 147 197 253;
+    --aurex-400: 96 165 250;
+    --aurex-500: 59 130 246;
+    --aurex-600: 37 99 235;
+    --aurex-700: 29 78 216;
+    --aurex-800: 30 64 175;
+    --aurex-900: 30 58 138;
+    --aurex-bg: 10 18 26;
+    --aurex-bg-2: 20 32 42;
+    --aurex-surface: 26 42 53;
+    --aurex-surface-2: 18 28 38;
+    --aurex-border: 45 65 80;
+    --aurex-text: 235 242 245;
+    --aurex-text-dim: 139 155 167;
+}
+
+[data-theme='emerald'] {
+    --aurex-50: 236 253 245;
+    --aurex-100: 209 250 229;
+    --aurex-200: 167 243 208;
+    --aurex-300: 110 231 183;
+    --aurex-400: 52 211 153;
+    --aurex-500: 16 185 129;
+    --aurex-600: 5 150 105;
+    --aurex-700: 4 120 87;
+    --aurex-800: 6 95 70;
+    --aurex-900: 6 78 59;
+    --aurex-bg: 10 26 20;
+    --aurex-bg-2: 20 42 32;
+    --aurex-surface: 26 53 40;
+    --aurex-surface-2: 18 38 28;
+    --aurex-border: 45 80 60;
+    --aurex-text: 235 245 238;
+    --aurex-text-dim: 139 167 150;
+}
+
+[data-theme='purple'] {
+    --aurex-50: 250 245 255;
+    --aurex-100: 243 232 255;
+    --aurex-200: 233 213 255;
+    --aurex-300: 216 180 254;
+    --aurex-400: 192 132 252;
+    --aurex-500: 168 85 247;
+    --aurex-600: 147 51 234;
+    --aurex-700: 126 34 206;
+    --aurex-800: 107 33 168;
+    --aurex-900: 88 28 135;
+    --aurex-bg: 18 10 26;
+    --aurex-bg-2: 30 20 42;
+    --aurex-surface: 40 26 53;
+    --aurex-surface-2: 28 18 38;
+    --aurex-border: 65 45 80;
+    --aurex-text: 242 235 245;
+    --aurex-text-dim: 155 139 167;
+}

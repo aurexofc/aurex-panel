@@ -1,0 +1,110 @@
+/**
+ * Aurex animated dashboard.
+ *
+ * Subtle, premium motion for the dashboard: fade-up entrances, floating
+ * theme-colored particles, and glow. All animations use transform/opacity
+ * only (GPU-friendly). Particle and glow colors resolve to the active
+ * theme via --aurex-* variables.
+ *
+ * Respects prefers-reduced-motion: every animation is disabled below.
+ */
+
+/* ---------- Entrance: fade in + rise ---------- */
+@keyframes aurex-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.aurex-fade-up {
+    animation: aurex-fade-up 0.55s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+    will-change: opacity, transform;
+}
+
+/* ---------- Floating particles ---------- */
+@keyframes aurex-particle-float {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0;
+    }
+    12% {
+        opacity: var(--aurex-particle-opacity, 0.2);
+    }
+    80% {
+        opacity: var(--aurex-particle-opacity, 0.2);
+    }
+    100% {
+        transform: translate3d(var(--aurex-particle-dx, 24px), -52vh, 0) scale(0.6);
+        opacity: 0;
+    }
+}
+
+.aurex-particle {
+    position: absolute;
+    bottom: -12px;
+    border-radius: 9999px;
+    /* Theme-colored soft dot: solid core fading to transparent. */
+    background: radial-gradient(
+        circle,
+        rgb(var(--aurex-400) / 0.85) 0%,
+        rgb(var(--aurex-500) / 0.25) 45%,
+        rgb(var(--aurex-500) / 0) 70%
+    );
+    animation: aurex-particle-float linear infinite;
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+/* ---------- Soft shimmer sweep for headings ---------- */
+@keyframes aurex-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.aurex-shimmer-text {
+    background: linear-gradient(
+        100deg,
+        rgb(var(--aurex-text)) 40%,
+        rgb(var(--aurex-300)) 50%,
+        rgb(var(--aurex-text)) 60%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: aurex-shimmer 5s ease-in-out infinite;
+}
+
+/* ---------- Reduced motion: disable everything ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .aurex-fade-up,
+    .aurex-particle,
+    .aurex-shimmer-text {
+        animation: none !important;
+    }
+
+    .aurex-fade-up {
+        opacity: 1 !important;
+        transform: none !important;
+        will-change: auto;
+    }
+
+    .aurex-particle {
+        display: none !important;
+    }
+
+    .aurex-shimmer-text {
+        color: rgb(var(--aurex-text));
+        -webkit-text-fill-color: rgb(var(--aurex-text));
+        background: none;
+    }
+}
