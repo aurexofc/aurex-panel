@@ -24,8 +24,15 @@ class AurexPrebot extends Model
         'active' => 'boolean',
     ];
 
-    public static array $validationRules = [
-        'name' => 'required|string|max:191',
+    /**
+     * Use the numeric id for route binding (no uuid column on this table).
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'id';
+    }
+
+    public static array $validationRules = [        'name' => 'required|string|max:191',
         'slug' => 'required|string|max:191|alpha_dash',
         'description' => 'nullable|string|max:1000',
         'github_url' => 'required|string|max:500',
