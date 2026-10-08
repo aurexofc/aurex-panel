@@ -21,8 +21,8 @@ class AurexPrebotSeeder extends Seeder
             [
                 'name' => 'AUREX Bot',
                 'slug' => 'aurex-bot',
-                'description' => 'The official AUREX WhatsApp bot — royal gold menu, VIP welcome cards with profile pictures, rank system, sticker maker & group management. Built for kings. 👑 (Based on HIROBOT by HirooSy)',
-                'github_url' => 'https://github.com/HirooSy/HIROBOT',
+                'description' => 'The official AUREX WhatsApp bot — royal gold menu, VIP welcome cards with profile pictures, rank system, sticker maker & group management. Built for kings. 👑 Coming soon!',
+                'github_url' => 'https://github.com/aurexofc/aurex-bot',
                 'icon' => '👑',
                 'price_coins' => 500,
                 'memory' => 512,
