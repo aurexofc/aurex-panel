@@ -1,12 +1,17 @@
 <?php
 
-namespace Pterodactyl\Database\Seeders;
+namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Pterodactyl\Models\AurexPrebot;
 
 /**
  * Seeds the PreBots store: AUREX (featured) + popular open-source WhatsApp bots.
+ *
+ * NOTE: CORTANA 2.0, AZURA ULTRA 2.0 and WhatsApp-Bot TS ship as INACTIVE —
+ * their upstream repos could not be verified (only low-star knockoffs found,
+ * and a malicious "cortana-md-engine" npm package is flagged by ox.security).
+ * Enable them from Admin → Aurex → PreBots only after verifying the repo yourself.
  */
 class AurexPrebotSeeder extends Seeder
 {
@@ -16,26 +21,28 @@ class AurexPrebotSeeder extends Seeder
             [
                 'name' => 'AUREX Bot',
                 'slug' => 'aurex-bot',
-                'description' => 'The official AUREX WhatsApp bot — royal gold menu, VIP welcome cards with profile pictures, rank system, sticker maker & group management. Built for kings. 👑',
-                'github_url' => 'https://github.com/aurexofc/aurex-panel',
+                'description' => 'The official AUREX WhatsApp bot — royal gold menu, VIP welcome cards with profile pictures, rank system, sticker maker & group management. Built for kings. 👑 (Based on HIROBOT by HirooSy)',
+                'github_url' => 'https://github.com/HirooSy/HIROBOT',
                 'icon' => '👑',
                 'price_coins' => 500,
                 'memory' => 512,
                 'disk' => 2048,
                 'cpu' => 100,
                 'featured' => true,
+                'active' => true,
                 'sort_order' => 0,
             ],
             [
                 'name' => 'La Suki Bot',
                 'slug' => 'la-suki-bot',
                 'description' => 'One of the most popular multi-device WhatsApp bots — fun commands, games, stickers and group tools.',
-                'github_url' => 'https://github.com/russellxz/LASUKIBOT.git',
+                'github_url' => 'https://github.com/russellxz/LASUKIBOT',
                 'icon' => '🌸',
                 'price_coins' => 400,
                 'memory' => 512,
                 'disk' => 2048,
                 'cpu' => 100,
+                'active' => true,
                 'sort_order' => 1,
             ],
             [
@@ -48,6 +55,7 @@ class AurexPrebotSeeder extends Seeder
                 'memory' => 512,
                 'disk' => 2048,
                 'cpu' => 100,
+                'active' => true,
                 'sort_order' => 2,
             ],
             [
@@ -60,6 +68,7 @@ class AurexPrebotSeeder extends Seeder
                 'memory' => 256,
                 'disk' => 1024,
                 'cpu' => 75,
+                'active' => true,
                 'sort_order' => 3,
             ],
             [
@@ -72,6 +81,7 @@ class AurexPrebotSeeder extends Seeder
                 'memory' => 512,
                 'disk' => 2048,
                 'cpu' => 100,
+                'active' => false,
                 'sort_order' => 4,
             ],
             [
@@ -84,6 +94,7 @@ class AurexPrebotSeeder extends Seeder
                 'memory' => 512,
                 'disk' => 2048,
                 'cpu' => 100,
+                'active' => false,
                 'sort_order' => 5,
             ],
             [
@@ -96,12 +107,13 @@ class AurexPrebotSeeder extends Seeder
                 'memory' => 256,
                 'disk' => 1024,
                 'cpu' => 75,
+                'active' => false,
                 'sort_order' => 6,
             ],
         ];
 
         foreach ($bots as $bot) {
-            AurexPrebot::updateOrCreate(['slug' => $bot['slug']], $bot + ['active' => true]);
+            AurexPrebot::updateOrCreate(['slug' => $bot['slug']], $bot);
         }
     }
 }

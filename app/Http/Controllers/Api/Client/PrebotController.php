@@ -110,7 +110,7 @@ class PrebotController extends ClientApiController
         return new JsonResponse([
             'balance' => $user->coins_balance,
             'server_id' => $server->uuid,
-            'message' => "Your {$prebot->name} is being deployed! Link your WhatsApp via QR code in the console.",
+            'message' => "Your {$prebot->name} is deploying! Check your server console for the pairing code or QR to link WhatsApp.",
         ], JsonResponse::HTTP_CREATED);
     }
 }
