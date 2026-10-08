@@ -28,14 +28,17 @@
 
 <div align="center">
 
-### 🪙 Coin Economy &nbsp;•&nbsp; 📺 Rewarded Ads &nbsp;•&nbsp; 💱 10 Currencies &nbsp;•&nbsp; 🎨 5 Royal Themes
-### 📱 WhatsApp Alerts &nbsp;•&nbsp; 🌍 EN + ES &nbsp;•&nbsp; 🔗 Referrals &nbsp;•&nbsp; 🛡️ Anti-Abuse
+| 🪙 **Coin Economy** | 📺 **Rewarded Ads** |
+|:---:|:---:|
+| 💱 **10 Currencies** | 🎨 **5 Royal Themes** |
+| 📱 **WhatsApp Alerts** | 🌍 **EN + ES** |
+| 🔗 **Referrals** | 🛡️ **Anti-Abuse** |
 
 </div>
 
 ---
 
-## 🌟 What is Aurex?
+## 🌟 𝙒𝙝𝙖𝙩 𝙞𝙨 𝘼𝙪𝙧𝙚𝙭?
 
 **Aurex** is a next-generation game server hosting panel — a fully rebranded, feature-packed evolution of Pterodactyl with a **VIP royal experience**.
 
@@ -43,24 +46,24 @@ Users earn coins by **watching ads**, **inviting friends**, or **topping up** wi
 
 > 🎮 **For gamers, by gamers.** Coins in → servers out.
 
-### 🆚 Why Aurex over plain Pterodactyl?
+### 🆚 𝙒𝙝𝙮 𝘼𝙪𝙧𝙚𝙭 𝙤𝙫𝙚𝙧 𝙥𝙡𝙖𝙞𝙣 𝙋𝙩𝙚𝙧𝙤𝙙𝙖𝙘𝙩𝙮𝙡?
 
-> Every feature below is **✅ in Aurex** but **❌ missing in Pterodactyl**:
-
-- 🪙 Coin economy
-- 🏪 Server store (buy with coins)
-- 📺 Rewarded ads
-- 🔗 Referral bonuses
-- 💸 Manual top-ups (Easypaisa/JazzCash/USDT)
-- 💱 Multi-currency + auto geo-pricing
-- 📱 WhatsApp notifications
-- 🎨 5 switchable themes
-- 🌍 Multi-language (EN/ES)
-- ✨ VIP animated dashboard
+| ✨ Feature | Ptero | 👑 Aurex |
+|:-----------|:-----:|:--------:|
+| Coin economy | ❌ | ✅ |
+| Server store | ❌ | ✅ |
+| Rewarded ads | ❌ | ✅ |
+| Referral bonuses | ❌ | ✅ |
+| Top-ups (Easypaisa/USDT) | ❌ | ✅ |
+| Multi-currency + geo-pricing | ❌ | ✅ |
+| WhatsApp notifications | ❌ | ✅ |
+| 5 switchable themes | ❌ | ✅ |
+| Multi-language (EN/ES) | ❌ | ✅ |
+| VIP animated dashboard | ❌ | ✅ |
 
 ---
 
-## ✨ Features
+## ✨ 𝙁𝙚𝙖𝙩𝙪𝙧𝙚𝙨
 
 <details open>
 <summary><b>🪙 Coin Economy</b></summary>
@@ -161,7 +164,7 @@ Users earn coins by **watching ads**, **inviting friends**, or **topping up** wi
 
 ---
 
-## 🚀 Installation
+## 🚀 𝙄𝙣𝙨𝙩𝙖𝙡𝙡𝙖𝙩𝙞𝙤𝙣
 
 ### ⚡ One-Command Install *(Recommended)*
 
@@ -222,7 +225,7 @@ Then:
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ 𝙏𝙚𝙘𝙝 𝙎𝙩𝙖𝙘𝙠
 
 <div align="center">
 
@@ -240,7 +243,7 @@ Then:
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ 𝙍𝙤𝙖𝙙𝙢𝙖𝙥
 
 - [ ] 🏆 Leaderboard (top referrers & coin holders)
 - [ ] 🎁 Daily login streak bonuses
@@ -253,7 +256,7 @@ Then:
 
 ---
 
-## ❓ FAQ
+## ❓ 𝙁𝘼𝙌
 
 **Q: Is Aurex free?**
 A: 100% free and open-source (MIT). No paid tiers, no locked features.
@@ -272,7 +275,7 @@ A: Aurex is built ON Pterodactyl (same Wings daemon, same reliability) but adds 
 
 ---
 
-## 🤝 Contributing
+## 🤝 𝘾𝙤𝙣𝙩𝙧𝙞𝙗𝙪𝙩𝙞𝙣𝙜
 
 We love contributions! Here's how:
 
@@ -290,7 +293,7 @@ MIT License — see [LICENSE](LICENSE.md) for details.
 
 ---
 
-## 💬 Support
+## 💬 𝙎𝙪𝙥𝙥𝙤𝙧𝙩
 
 - 🐛 **Bug reports**: [GitHub Issues](https://github.com/aurexofc/aurex-panel/issues)
 - 🌐 **Live demo**: [aurex.waseem.website](https://aurex.waseem.website/)
