@@ -86,7 +86,7 @@
 ### One-Command Install (Recommended)
 
 ```bash
-bash <(curl -sSL "https://muse.ai/files/1383761198145232/1448350197204386/gfc21vt1xoxrs92kgwa22cxp/aurex-installer-v2.sh")
+bash <(curl -sSL "https://raw.githubusercontent.com/aurexofc/aurex-panel/1.0-develop/installer/aurex-installer.sh")
 ```
 
 The stylish installer handles **everything**:
@@ -127,7 +127,7 @@ systemctl enable --now aurex-queue
 ### 📱 WhatsApp Setup (WaSphere)
 
 ```bash
-sudo bash wasphere-install.sh
+sudo bash <(curl -sSL "https://raw.githubusercontent.com/aurexofc/aurex-panel/1.0-develop/installer/wasphere-install.sh")
 # Then: open http://YOUR-VPS-IP:3004 → register → Settings → WA Server
 # Sessions → scan QR with a SPARE number → create API key
 # Paste key into Aurex Admin → Aurex → Top-ups → WhatsApp
