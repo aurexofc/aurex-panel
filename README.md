@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="public/assets/aurex-banner.svg" alt="Aurex VIP Banner" width="100%"/>
+<img src="https://raw.githubusercontent.com/aurexofc/aurex-panel/1.0-develop/public/assets/aurex-banner.svg" alt="Aurex VIP Banner" width="100%"/>
 
-<img src="public/assets/aurex-logo.png" alt="Aurex Logo" width="160"/>
+<img src="https://raw.githubusercontent.com/aurexofc/aurex-panel/1.0-develop/public/assets/aurex-logo.png" alt="Aurex Logo" width="160"/>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-gold?style=for-the-badge)](LICENSE)
 [![PHP 8.2](https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
