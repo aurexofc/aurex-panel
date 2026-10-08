@@ -28,13 +28,8 @@
 
 <div align="center">
 
-| 🪙 **Coin Economy** | 📺 **Rewarded Ads** | 💱 **10 Currencies** | 🎨 **5 Royal Themes** |
-|:---:|:---:|:---:|:---:|
-| Earn, buy & spend | Watch ads, get coins | Auto geo-pricing | VIP gold design |
-
-| 📱 **WhatsApp Alerts** | 🌍 **EN + ES** | 🔗 **Referrals** | 🛡️ **Anti-Abuse** |
-|:---:|:---:|:---:|:---:|
-| Free self-hosted | Full i18n | Dual-sided bonuses | VPN + IP blocking |
+### 🪙 Coin Economy &nbsp;•&nbsp; 📺 Rewarded Ads &nbsp;•&nbsp; 💱 10 Currencies &nbsp;•&nbsp; 🎨 5 Royal Themes
+### 📱 WhatsApp Alerts &nbsp;•&nbsp; 🌍 EN + ES &nbsp;•&nbsp; 🔗 Referrals &nbsp;•&nbsp; 🛡️ Anti-Abuse
 
 </div>
 
@@ -50,18 +45,18 @@ Users earn coins by **watching ads**, **inviting friends**, or **topping up** wi
 
 ### 🆚 Why Aurex over plain Pterodactyl?
 
-| Feature | Pterodactyl | 👑 Aurex |
-|:--------|:-----------:|:--------:|
-| Coin economy | ❌ | ✅ |
-| Server store (buy with coins) | ❌ | ✅ |
-| Rewarded ads | ❌ | ✅ |
-| Referral bonuses | ❌ | ✅ |
-| Manual top-ups (Easypaisa/JazzCash/USDT) | ❌ | ✅ |
-| Multi-currency + auto geo-pricing | ❌ | ✅ |
-| WhatsApp notifications | ❌ | ✅ |
-| 5 switchable themes | ❌ | ✅ |
-| Multi-language (EN/ES) | ❌ | ✅ |
-| VIP animated dashboard | ❌ | ✅ |
+> Every feature below is **✅ in Aurex** but **❌ missing in Pterodactyl**:
+
+- 🪙 Coin economy
+- 🏪 Server store (buy with coins)
+- 📺 Rewarded ads
+- 🔗 Referral bonuses
+- 💸 Manual top-ups (Easypaisa/JazzCash/USDT)
+- 💱 Multi-currency + auto geo-pricing
+- 📱 WhatsApp notifications
+- 🎨 5 switchable themes
+- 🌍 Multi-language (EN/ES)
+- ✨ VIP animated dashboard
 
 ---
 
@@ -175,15 +170,12 @@ bash <(curl -sSL "https://raw.githubusercontent.com/aurexofc/aurex-panel/1.0-dev
 ```
 
 The stylish installer handles **everything automatically**:
-
-| Step | What it does |
-|:-----|:-------------|
-| ✅ Dependencies | PHP 8.2, MySQL, Redis, Nginx, Node.js 20 |
-| ✅ SSL | Free Let's Encrypt certificate |
-| ✅ Database | Auto-created + admin user setup |
-| ✅ Background jobs | Cronjob + queue worker (systemd) |
-| ✅ Firewall | Optional UFW (22, 80, 443) |
-| ✅ Wings | Optional game daemon install |
+- ✅ Dependencies — PHP 8.2, MySQL, Redis, Nginx, Node.js 20
+- ✅ SSL — Free Let's Encrypt certificate
+- ✅ Database — Auto-created + admin user setup
+- ✅ Background jobs — Cronjob + queue worker (systemd)
+- ✅ Firewall — Optional UFW (22, 80, 443)
+- ✅ Wings — Optional game daemon install
 
 **Requirements:** Fresh Ubuntu 22.04/24.04 VPS with 2GB+ RAM
 
