@@ -1,6 +1,6 @@
 <?php
 
-namespace Pterodactyl\Database\Seeders;
+namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Pterodactyl\Models\AurexPrebot;
@@ -66,7 +66,7 @@ class AurexPrebotSeeder extends Seeder
                 'name' => 'CORTANA 2.0',
                 'slug' => 'cortana-2',
                 'description' => 'Smart WhatsApp assistant bot with AI-style responses, utilities and entertainment commands.',
-                'github_url' => 'https://github.com/example/cortana-2.0',
+                'github_url' => 'https://github.com/edu-qariz/cortana_md',
                 'icon' => '💙',
                 'price_coins' => 350,
                 'memory' => 512,
@@ -78,7 +78,7 @@ class AurexPrebotSeeder extends Seeder
                 'name' => 'AZURA ULTRA 2.0',
                 'slug' => 'azura-ultra-2',
                 'description' => 'Premium multi-device bot with ultra-fast responses, media downloaders and group security.',
-                'github_url' => 'https://github.com/example/azura-ultra-2.0',
+                'github_url' => 'https://github.com/russellxz/AZURA-ULTRA-2.0-BOT',
                 'icon' => '⚡',
                 'price_coins' => 450,
                 'memory' => 512,
@@ -87,10 +87,10 @@ class AurexPrebotSeeder extends Seeder
                 'sort_order' => 5,
             ],
             [
-                'name' => 'Base Zeta-ts',
+                'name' => 'WhatsApp-Bot TS',
                 'slug' => 'base-zeta-ts',
-                'description' => 'Clean TypeScript WhatsApp bot base — perfect for developers who want to build their own commands.',
-                'github_url' => 'https://github.com/example/base-zeta-ts',
+                'description' => 'Clean TypeScript WhatsApp bot base (Baileys) — perfect for developers who want to build their own commands.',
+                'github_url' => 'https://github.com/AiDarkEzio/WhatsApp-Bot',
                 'icon' => '🛠️',
                 'price_coins' => 250,
                 'memory' => 256,
