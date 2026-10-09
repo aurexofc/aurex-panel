@@ -110,6 +110,24 @@ main() {
         exit 1
     fi
 
+    # Never prompt for input during package installs (mysql/tzdata hang otherwise)
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Wait for background auto-updates to release the apt lock (fresh VPS)
+    print_info "Checking for background package locks..."
+    for i in $(seq 1 30); do
+        if ! fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 \
+        && ! fuser /var/lib/apt/lists/lock >/dev/null 2>&1; then
+            break
+        fi
+        if [ "$i" -eq 30 ]; then
+            print_info "Stopping stuck background updater..."
+            pkill -f unattended-upgr 2>/dev/null
+            sleep 2
+        fi
+        sleep 5
+    done
+
     echo -e "${BOLD}What would you like to do?${NC}"
     echo -e "  ${GOLD}1)${NC} Install Aurex Panel"
     echo -e "  ${GOLD}2)${NC} Install Wings ${DIM}(game server daemon)${NC}"
