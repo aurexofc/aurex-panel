@@ -5,6 +5,7 @@ import DashboardContainer from '@/components/dashboard/DashboardContainer';
 import StoreContainer from '@/components/store/StoreContainer';
 import PrebotsContainer from '@/components/prebots/PrebotsContainer';
 import RedeemContainer from '@/components/redeem/RedeemContainer';
+import PremiumContainer from '@/components/premium/PremiumContainer';
 import { NotFound } from '@/components/elements/ScreenBlock';
 import TransitionRouter from '@/TransitionRouter';
 import SubNavigation from '@/components/elements/SubNavigation';
@@ -45,6 +46,9 @@ export default () => {
                         </Route>
                         <Route path={'/redeem'} exact>
                             <RedeemContainer />
+                        </Route>
+                        <Route path={'/premium'} exact>
+                            <PremiumContainer />
                         </Route>
                         {routes.account.map(({ path, component: Component }) => (
                             <Route key={path} path={`/account/${path}`.replace('//', '/')} exact>

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCogs, faLayerGroup, faSignOutAlt, faStore, faRobot, faTicketAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCogs, faLayerGroup, faSignOutAlt, faStore, faRobot, faTicketAlt, faCrown } from '@fortawesome/free-solid-svg-icons';
 import { useStoreState } from 'easy-peasy';
 import { ApplicationStore } from '@/state';
 import SearchContainer from '@/components/dashboard/search/SearchContainer';
@@ -37,6 +37,8 @@ export default () => {
     const t = useTranslation();
     const name = useStoreState((state: ApplicationStore) => state.settings.data!.name);
     const rootAdmin = useStoreState((state: ApplicationStore) => state.user.data!.rootAdmin);
+    const username = useStoreState((state: ApplicationStore) => state.user.data!.username);
+    const isPremium = useStoreState((state: ApplicationStore) => state.user.data!.isPremium);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const onTriggerLogout = () => {
@@ -51,7 +53,7 @@ export default () => {
         <div className={'w-full bg-neutral-900 shadow-md overflow-x-auto'}>
             <SpinnerOverlay visible={isLoggingOut} />
             <div className={'mx-auto w-full flex items-center h-[3.5rem] max-w-[1200px]'}>
-                <div id={'logo'} className={'flex-1'}>
+                <div id={'logo'} className={'flex-1 flex items-center gap-2'}>
                     <Link
                         to={'/'}
                         className={
@@ -60,6 +62,26 @@ export default () => {
                     >
                         {name}
                     </Link>
+                    <span className={'hidden sm:flex items-center gap-1.5 text-sm text-neutral-400'}>
+                        <span className={'font-medium text-neutral-300'}>{username}</span>
+                        {isPremium ? (
+                            <span
+                                className={'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider'}
+                                style={{
+                                    background: 'linear-gradient(115deg, rgb(var(--aurex-300)), rgb(var(--aurex-500)))',
+                                    color: 'rgb(var(--aurex-bg))',
+                                }}
+                            >
+                                👑 Premium
+                            </span>
+                        ) : (
+                            <span
+                                className={'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-neutral-700 text-neutral-300'}
+                            >
+                                Free
+                            </span>
+                        )}
+                    </span>
                 </div>
                 <RightNavigation className={'flex h-full items-center justify-center'}>
                     <SearchContainer />
@@ -81,6 +103,11 @@ export default () => {
                     <Tooltip placement={'bottom'} content={t.nav.redeem}>
                         <NavLink to={'/redeem'}>
                             <FontAwesomeIcon icon={faTicketAlt} />
+                        </NavLink>
+                    </Tooltip>
+                    <Tooltip placement={'bottom'} content={t.nav.premium}>
+                        <NavLink to={'/premium'}>
+                            <FontAwesomeIcon icon={faCrown} />
                         </NavLink>
                     </Tooltip>
                     {rootAdmin && (

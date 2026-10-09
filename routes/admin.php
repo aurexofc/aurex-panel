@@ -253,6 +253,9 @@ Route::group(['prefix' => 'aurex'], function () {
     Route::post('/redeem-codes/{code}/toggle', [Admin\Aurex\RedeemCodeController::class, 'toggle'])->name('admin.aurex.redeem-codes.toggle');
     Route::delete('/redeem-codes/{code}', [Admin\Aurex\RedeemCodeController::class, 'destroy'])->name('admin.aurex.redeem-codes.delete');
 
+    Route::get('/premium', [Admin\Aurex\PremiumController::class, 'index'])->name('admin.aurex.premium');
+    Route::patch('/premium/{package}', [Admin\Aurex\PremiumController::class, 'update'])->name('admin.aurex.premium.update');
+
     Route::get('/coins', [Admin\Aurex\CoinController::class, 'index'])->name('admin.aurex.coins');
     Route::post('/coins/grant', [Admin\Aurex\CoinController::class, 'grant'])->name('admin.aurex.coins.grant');
 

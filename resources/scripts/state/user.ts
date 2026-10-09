@@ -8,6 +8,8 @@ export interface UserData {
     language: string;
     rootAdmin: boolean;
     useTotp: boolean;
+    isPremium: boolean;
+    maxServers: number;
     createdAt: Date;
     updatedAt: Date;
 }

@@ -82,6 +82,15 @@
     </div>
     <div class="col-xs-12 col-md-4">
         <div class="box box-warning">
+            <div class="box-header with-border"><h3 class="box-title">👑 Premium</h3></div>
+            <div class="box-body">
+                <p class="text-muted">Weekly / Monthly / Yearly / Lifetime packages users buy with coins.</p>
+                <a href="{{ route('admin.aurex.premium') }}" class="btn btn-warning btn-block">Manage Premium</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-4">
+        <div class="box box-warning">
             <div class="box-header with-border"><h3 class="box-title">Coins</h3></div>
             <div class="box-body">
                 <p class="text-muted">Search any user and grant or deduct coins manually.</p>

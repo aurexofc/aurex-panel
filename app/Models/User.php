@@ -202,6 +202,7 @@ class User extends Model implements
     {
         return Collection::make($this->toArray())->except(['id', 'external_id'])
             ->merge(['identifier' => $this->identifier])
+            ->merge(['is_premium' => $this->is_premium, 'max_servers' => $this->max_servers])
             ->toArray();
     }
 
@@ -336,6 +337,40 @@ class User extends Model implements
         }
 
         return $this->awardCoins(-$amount, $reason, $meta);
+    }
+
+    /**
+     * The user's currently live premium subscription, if any.
+     */
+    public function premiumSubscription()
+    {
+        return $this->hasOne(AurexPremiumSubscription::class, 'user_id')
+            ->where('active', true)
+            ->where(function ($query) {
+                $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->latest('id');
+    }
+
+    /**
+     * Whether the user currently enjoys premium benefits.
+     */
+    public function getIsPremiumAttribute(): bool
+    {
+        return $this->premiumSubscription()->exists();
+    }
+
+    /**
+     * Max servers the user may own: 1 for free, package limit for premium.
+     */
+    public function getMaxServersAttribute(): int
+    {
+        $subscription = $this->premiumSubscription()->with('package')->first();
+        if ($subscription && $subscription->package) {
+            return (int) $subscription->package->max_servers;
+        }
+
+        return 1;
     }
 
     /**

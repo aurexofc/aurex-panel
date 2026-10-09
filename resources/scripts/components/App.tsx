@@ -31,6 +31,8 @@ interface ExtendedWindow extends Window {
         root_admin: boolean;
         use_totp: boolean;
         language: string;
+        is_premium: boolean;
+        max_servers: number;
         updated_at: string;
         created_at: string;
         /* eslint-enable camelcase */
@@ -49,6 +51,8 @@ const App = () => {
             language: PterodactylUser.language,
             rootAdmin: PterodactylUser.root_admin,
             useTotp: PterodactylUser.use_totp,
+            isPremium: !!PterodactylUser.is_premium,
+            maxServers: PterodactylUser.max_servers || 1,
             createdAt: new Date(PterodactylUser.created_at),
             updatedAt: new Date(PterodactylUser.updated_at),
         });

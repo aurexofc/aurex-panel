@@ -94,6 +94,20 @@ Route::prefix('/redeem')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Aurex Premium API
+|
+| Endpoint: /api/client/premium
+|
+*/
+Route::prefix('/premium')->group(function () {
+    Route::get('/', [Client\PremiumController::class, 'index'])->name('api:client.premium');
+    Route::post('/purchase', [Client\PremiumController::class, 'purchase'])
+        ->middleware('throttle:5,1')
+        ->name('api:client.premium.purchase');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Aurex Manual Top-Ups API
 |--------------------------------------------------------------------------
 |

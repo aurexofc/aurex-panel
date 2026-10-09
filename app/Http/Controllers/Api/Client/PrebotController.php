@@ -50,6 +50,15 @@ class PrebotController extends ClientApiController
         $user = $request->user();
         $prebot = AurexPrebot::query()->where('active', true)->findOrFail($data['prebot_id']);
 
+        // Enforce server limits: free users get 1 server, premium up to their package limit.
+        $serverCount = $user->servers()->count();
+        if ($serverCount >= $user->max_servers) {
+            $msg = $user->is_premium
+                ? "You already own {$serverCount} servers (your premium limit is {$user->max_servers})."
+                : 'Free accounts can own 1 server. Go Premium 👑 for up to 10 VIP servers!';
+            throw new DisplayException($msg);
+        }
+
         if ($user->coins_balance < $prebot->price_coins) {
             throw new DisplayException('Insufficient coins. Watch ads or invite friends to earn more.');
         }
