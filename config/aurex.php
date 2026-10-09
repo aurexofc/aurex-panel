@@ -44,6 +44,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Aurex Site Ads (Adsterra / Monetag)
+    |--------------------------------------------------------------------------
+    |
+    | Display ads shown to FREE users across the panel. Premium users never
+    | see them. head_code runs on every page (popunder / social bar scripts),
+    | banner_code renders as a banner slot on the dashboard.
+    |
+    */
+    'site_ads' => [
+        'enabled' => env('AUREX_SITE_ADS_ENABLED', false),
+        'head_code' => env('AUREX_SITE_ADS_HEAD_CODE', ''),
+        'banner_code' => env('AUREX_SITE_ADS_BANNER_CODE', ''),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Aurex Referrals
     |--------------------------------------------------------------------------
     |

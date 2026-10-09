@@ -86,6 +86,24 @@
                 </div>
             </div>
 
+            <div class="box box-warning">
+                <div class="box-header with-border"><h3 class="box-title">📢 Site Ads (Adsterra / Monetag)</h3></div>
+                <div class="box-body">
+                    <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:10px 0;"><input type="checkbox" name="site_ads_enabled" value="1" {{ !empty($siteAds['enabled']) ? 'checked' : '' }} style="width:24px;height:24px;transform:scale(1.6);-webkit-transform:scale(1.6);accent-color:#d4a017;cursor:pointer;flex:0 0 auto;margin:0 8px;"><strong>Site ads enabled</strong></label>
+                    <p class="text-muted">Display ads shown to <strong>FREE</strong> users only — Premium users never see them. 👑</p>
+                    <div class="form-group">
+                        <label>Head code (popunder / social bar)</label>
+                        <textarea name="site_ads_head_code" class="form-control" rows="4" maxlength="20000" placeholder="Paste Adsterra popunder or Monetag multi-tag script here…">{{ $siteAds['head_code'] ?? '' }}</textarea>
+                        <p class="help-block">Runs on every page for free users.</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Dashboard banner code</label>
+                        <textarea name="site_ads_banner_code" class="form-control" rows="4" maxlength="20000" placeholder="Paste your 728x90 or responsive banner code here…">{{ $siteAds['banner_code'] ?? '' }}</textarea>
+                        <p class="help-block">Shows as a banner on the dashboard for free users.</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="box box-success">
                 <div class="box-body text-center">
                     <button type="submit" class="btn btn-success btn-lg btn-block"><i class="fa fa-check"></i> Save All Settings</button>

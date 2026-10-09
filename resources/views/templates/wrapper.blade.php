@@ -19,6 +19,11 @@
             <meta name="theme-color" content="#0e4688">
         @show
 
+        {{-- Aurex site ads (Adsterra/Monetag): head scripts for FREE users only. Premium never sees ads. --}}
+        @if(config('aurex.site_ads.enabled') && !empty(config('aurex.site_ads.head_code')) && Auth::check() && !Auth::user()->is_premium)
+            {!! config('aurex.site_ads.head_code') !!}
+        @endif
+
         @section('user-data')
             <script>
                 // Apply the user's saved Aurex UI theme before React loads (no flash).

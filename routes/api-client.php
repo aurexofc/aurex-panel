@@ -108,6 +108,17 @@ Route::prefix('/premium')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Aurex Site Ads API
+|
+| Endpoint: /api/client/site-ads
+|
+*/
+Route::prefix('/site-ads')->group(function () {
+    Route::get('/banner', [Client\SiteAdController::class, 'banner'])->name('api:client.site-ads.banner');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Aurex Manual Top-Ups API
 |--------------------------------------------------------------------------
 |

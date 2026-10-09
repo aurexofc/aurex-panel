@@ -5,6 +5,7 @@ import ServerRow from '@/components/dashboard/ServerRow';
 import Spinner from '@/components/elements/Spinner';
 import PageContentBlock from '@/components/elements/PageContentBlock';
 import AurexWidgets from '@/components/dashboard/AurexWidgets';
+import SiteAdBanner from '@/components/elements/SiteAdBanner';
 import useFlash from '@/plugins/useFlash';
 import { useStoreState } from 'easy-peasy';
 import { usePersistedState } from '@/plugins/usePersistedState';
@@ -97,6 +98,7 @@ export default () => {
             <div css={tw`relative`}>
                 <Particles count={24} />
                 <div css={tw`relative`}>
+                    <SiteAdBanner />
                     <div className={'aurex-fade-up'}>
                         <AurexWidgets />
                     </div>

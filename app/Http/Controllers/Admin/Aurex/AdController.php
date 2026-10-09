@@ -24,11 +24,13 @@ class AdController extends Controller
         $ads = config('aurex.ads');
         $referrals = config('aurex.referrals');
         $registration = config('aurex.registration');
+        $siteAds = config('aurex.site_ads');
 
         return $this->view->make('admin.aurex.ads', [
             'ads' => $ads,
             'referrals' => $referrals,
             'registration' => $registration,
+            'siteAds' => $siteAds,
         ]);
     }
 
@@ -42,6 +44,9 @@ class AdController extends Controller
             'ads_ip_daily_limit' => 'required|integer|min:1|max:10000',
             'ads_demo_duration_seconds' => 'required|integer|min:5|max:300',
             'ads_embed_code' => 'nullable|string|max:20000',
+            'site_ads_enabled' => 'sometimes|boolean',
+            'site_ads_head_code' => 'nullable|string|max:20000',
+            'site_ads_banner_code' => 'nullable|string|max:20000',
             'referrals_enabled' => 'sometimes|boolean',
             'referrals_referrer_bonus' => 'required|integer|min:0|max:100000',
             'referrals_referred_bonus' => 'required|integer|min:0|max:100000',
@@ -59,6 +64,9 @@ class AdController extends Controller
             'ads_ip_daily_limit' => 'aurex:ads:ip_daily_limit',
             'ads_demo_duration_seconds' => 'aurex:ads:demo_duration_seconds',
             'ads_embed_code' => 'aurex:ads:embed_code',
+            'site_ads_enabled' => 'aurex:site_ads:enabled',
+            'site_ads_head_code' => 'aurex:site_ads:head_code',
+            'site_ads_banner_code' => 'aurex:site_ads:banner_code',
             'referrals_enabled' => 'aurex:referrals:enabled',
             'referrals_referrer_bonus' => 'aurex:referrals:referrer_bonus',
             'referrals_referred_bonus' => 'aurex:referrals:referred_bonus',
@@ -68,7 +76,7 @@ class AdController extends Controller
             'reg_block_vpn' => 'aurex:registration:block_vpn',
         ];
 
-        $booleans = ['ads_enabled', 'referrals_enabled', 'reg_welcome_bonus_enabled', 'reg_one_per_ip', 'reg_block_vpn'];
+        $booleans = ['ads_enabled', 'site_ads_enabled', 'referrals_enabled', 'reg_welcome_bonus_enabled', 'reg_one_per_ip', 'reg_block_vpn'];
         foreach ($map as $input => $key) {
             if (in_array($input, $booleans)) {
                 $value = $request->boolean($input) ? '1' : '0';

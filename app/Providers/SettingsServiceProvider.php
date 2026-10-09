@@ -38,6 +38,10 @@ class SettingsServiceProvider extends ServiceProvider
         'aurex:ads:ip_daily_limit',
         'aurex:ads:demo_duration_seconds',
         'aurex:ads:embed_code',
+        // Aurex site display ads (Adsterra / Monetag) — free users only.
+        'aurex:site_ads:enabled',
+        'aurex:site_ads:head_code',
+        'aurex:site_ads:banner_code',
         'aurex:referrals:enabled',
         'aurex:referrals:referrer_bonus',
         'aurex:referrals:referred_bonus',
