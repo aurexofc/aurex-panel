@@ -248,6 +248,11 @@ Route::group(['prefix' => 'aurex'], function () {
     Route::patch('/prebots/{prebot}', [Admin\Aurex\PrebotController::class, 'update'])->name('admin.aurex.prebots.update');
     Route::delete('/prebots/{prebot}', [Admin\Aurex\PrebotController::class, 'destroy'])->name('admin.aurex.prebots.delete');
 
+    Route::get('/redeem-codes', [Admin\Aurex\RedeemCodeController::class, 'index'])->name('admin.aurex.redeem-codes');
+    Route::post('/redeem-codes', [Admin\Aurex\RedeemCodeController::class, 'store']);
+    Route::post('/redeem-codes/{code}/toggle', [Admin\Aurex\RedeemCodeController::class, 'toggle'])->name('admin.aurex.redeem-codes.toggle');
+    Route::delete('/redeem-codes/{code}', [Admin\Aurex\RedeemCodeController::class, 'destroy'])->name('admin.aurex.redeem-codes.delete');
+
     Route::get('/coins', [Admin\Aurex\CoinController::class, 'index'])->name('admin.aurex.coins');
     Route::post('/coins/grant', [Admin\Aurex\CoinController::class, 'grant'])->name('admin.aurex.coins.grant');
 

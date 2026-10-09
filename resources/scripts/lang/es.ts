@@ -7,6 +7,7 @@ const es = {
         dashboard: 'Panel',
         store: 'Tienda Aurex',
         prebots: 'PreBots',
+        redeem: 'Canjear',
         admin: 'Administración',
         accountSettings: 'Configuración de cuenta',
         signOut: 'Cerrar sesión',
@@ -172,6 +173,15 @@ const es = {
         deploy: 'Desplegar Bot',
         deployed: '¡Bot desplegado!',
         botNamePlaceholder: 'Nombre de mi bot',
+    },
+    redeem: {
+        title: 'Canjear código',
+        subtitle: '¿Tienes un código VIP de un evento o sorteo? ¡Escríbelo abajo y reclama tus monedas!',
+        placeholder: 'ESCRIBE-TU-CÓDIGO',
+        claim: 'Reclamar monedas',
+        claimAnother: 'Canjear otro código',
+        success: 'Las monedas se han añadido a tu saldo.',
+        failed: 'No se pudo canjear este código. Revísalo e inténtalo de nuevo.',
     },
 };
 

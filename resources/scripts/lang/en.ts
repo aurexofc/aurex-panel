@@ -7,6 +7,7 @@ const en = {
         dashboard: 'Dashboard',
         store: 'Aurex Store',
         prebots: 'PreBots',
+        redeem: 'Redeem',
         admin: 'Admin',
         accountSettings: 'Account Settings',
         signOut: 'Sign Out',
@@ -170,6 +171,15 @@ const en = {
         deploy: 'Deploy Bot',
         deployed: 'Bot deployed!',
         botNamePlaceholder: 'My bot name',
+    },
+    redeem: {
+        title: 'Redeem Code',
+        subtitle: 'Got a VIP code from an event or giveaway? Enter it below and claim your coins!',
+        placeholder: 'ENTER-YOUR-CODE',
+        claim: 'Claim Coins',
+        claimAnother: 'Claim another code',
+        success: 'Coins have been added to your balance.',
+        failed: 'Could not claim this code. Please check it and try again.',
     },
 };
 

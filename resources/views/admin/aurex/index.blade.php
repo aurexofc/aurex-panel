@@ -73,6 +73,15 @@
     </div>
     <div class="col-xs-12 col-md-4">
         <div class="box box-warning">
+            <div class="box-header with-border"><h3 class="box-title">🎟️ Redeem Codes</h3></div>
+            <div class="box-body">
+                <p class="text-muted">Generate VIP codes — users claim them for coins.</p>
+                <a href="{{ route('admin.aurex.redeem-codes') }}" class="btn btn-warning btn-block">Manage Codes</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-4">
+        <div class="box box-warning">
             <div class="box-header with-border"><h3 class="box-title">Coins</h3></div>
             <div class="box-body">
                 <p class="text-muted">Search any user and grant or deduct coins manually.</p>

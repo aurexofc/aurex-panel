@@ -81,6 +81,19 @@ Route::prefix('/prebots')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Aurex Redeem Codes API
+|
+| Endpoint: /api/client/redeem
+|
+*/
+Route::prefix('/redeem')->group(function () {
+    Route::post('/claim', [Client\RedeemCodeController::class, 'claim'])
+        ->middleware('throttle:10,1')
+        ->name('api:client.redeem.claim');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Aurex Manual Top-Ups API
 |--------------------------------------------------------------------------
 |
