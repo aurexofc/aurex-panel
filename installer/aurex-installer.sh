@@ -241,7 +241,12 @@ do_install() {
         curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer -q
     } &> /tmp/aurex-install.log &
     spinner $! "Downloading source code" "/tmp/aurex-install.log"
-    wait $!
+    if ! wait $!; then
+        print_error "Source download failed! Check /tmp/aurex-install.log"
+        tail -15 /tmp/aurex-install.log | sed 's/^/  /'
+        exit 1
+    fi
+    chown -R www-data:www-data ${INSTALL_DIR}
     print_success "Source downloaded"
 
     # ── Step 3: PHP deps ──
@@ -251,7 +256,11 @@ do_install() {
         sudo -u www-data composer install --no-dev --optimize-autoloader -q
     } &> /tmp/aurex-install.log &
     spinner $! "Running composer install" "/tmp/aurex-install.log"
-    wait $!
+    if ! wait $!; then
+        print_error "Composer install failed! Check /tmp/aurex-install.log"
+        tail -15 /tmp/aurex-install.log | sed 's/^/  /'
+        exit 1
+    fi
     print_success "PHP packages installed"
 
     # ── Step 4: Frontend ──
@@ -262,7 +271,11 @@ do_install() {
         sudo -u www-data npm run build 2>&1 | tail -1
     } &> /tmp/aurex-install.log &
     spinner $! "Building assets (this takes a while)" "/tmp/aurex-install.log"
-    wait $!
+    if ! wait $!; then
+        print_error "Frontend build failed! Check /tmp/aurex-install.log"
+        tail -15 /tmp/aurex-install.log | sed 's/^/  /'
+        exit 1
+    fi
     print_success "Frontend built"
 
     # ── Step 5: Database ──
