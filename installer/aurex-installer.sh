@@ -291,8 +291,13 @@ do_install() {
         exit 1
     fi
     $MYSQL_CMD -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-    $MYSQL_CMD -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASS}';"
-    $MYSQL_CMD -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'127.0.0.1'; FLUSH PRIVILEGES;"
+    # Drop + recreate so re-runs always sync the password; cover both TCP and socket hosts
+    for DBH in '127.0.0.1' 'localhost'; do
+        $MYSQL_CMD -e "DROP USER IF EXISTS '${DB_USER}'@${DBH};"
+        $MYSQL_CMD -e "CREATE USER '${DB_USER}'@${DBH} IDENTIFIED BY '${DB_PASS}';"
+        $MYSQL_CMD -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@${DBH};"
+    done
+    $MYSQL_CMD -e "FLUSH PRIVILEGES;"
     print_success "Database '${DB_NAME}' created"
 
     # ── Step 6: Configure ──
