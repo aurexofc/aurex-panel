@@ -83,15 +83,19 @@ confirm() {
 }
 
 spinner() {
-    local pid=$1 msg="$2"
+    local pid=$1 msg="$2" logfile="${3:-}"
     local spin='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
     local i=0
     while kill -0 $pid 2>/dev/null; do
-        printf "\r  ${CYAN}%s${NC} %s..." "${spin:$i:1}" "$msg"
+        local detail=""
+        if [ -n "$logfile" ] && [ -f "$logfile" ]; then
+            detail=$(grep -v '^[[:space:]]*$' "$logfile" 2>/dev/null | tail -n 1 | cut -c1-70)
+        fi
+        printf "\r\033[K  ${CYAN}%s${NC} %s... ${DIM}%s${NC}" "${spin:$i:1}" "$msg" "$detail"
         i=$(( (i+1) % 10 ))
-        sleep 0.1
+        sleep 0.2
     done
-    printf "\r"
+    printf "\r\033[K"
 }
 
 # ── Main ────────────────────────────────────────────────────────────────────
@@ -177,15 +181,15 @@ do_install() {
     print_step "[1/7] Installing system dependencies"
     {
         # Node.js 20 (Ubuntu default is too old for modern builds)
-        curl -fsSL https://deb.nodesource.com/setup_20.x | bash - -qq 2>&1 | tail -1
-        apt update -qq
-        apt install -y -qq curl unzip git nginx certbot python3-certbot-nginx nodejs \
+        curl -fsSL https://deb.nodesource.com/setup_20.x | bash - 2>&1 | tail -2
+        apt update
+        apt install -y curl unzip git nginx certbot python3-certbot-nginx nodejs \
 
             php${PHP_V}-fpm php${PHP_V}-cli php${PHP_V}-mysql php${PHP_V}-mbstring \
             php${PHP_V}-xml php${PHP_V}-curl php${PHP_V}-zip php${PHP_V}-bcmath \
             php${PHP_V}-gd php${PHP_V}-redis mysql-server redis-server
     } &> /tmp/aurex-install.log &
-    spinner $! "Installing packages"
+    spinner $! "Installing packages" "/tmp/aurex-install.log"
     wait $!
     # Firewall
     if [ "$SETUP_FIREWALL" = true ]; then
@@ -210,7 +214,7 @@ do_install() {
         rm -rf /tmp/aurex-panel
         curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer -q
     } &> /tmp/aurex-install.log &
-    spinner $! "Downloading source code"
+    spinner $! "Downloading source code" "/tmp/aurex-install.log"
     wait $!
     print_success "Source downloaded"
 
@@ -220,7 +224,7 @@ do_install() {
         cd ${INSTALL_DIR}
         sudo -u www-data composer install --no-dev --optimize-autoloader -q
     } &> /tmp/aurex-install.log &
-    spinner $! "Running composer install"
+    spinner $! "Running composer install" "/tmp/aurex-install.log"
     wait $!
     print_success "PHP packages installed"
 
@@ -231,7 +235,7 @@ do_install() {
         sudo -u www-data npm install -q 2>&1 | tail -1
         sudo -u www-data npm run build 2>&1 | tail -1
     } &> /tmp/aurex-install.log &
-    spinner $! "Building assets (this takes a while)"
+    spinner $! "Building assets (this takes a while)" "/tmp/aurex-install.log"
     wait $!
     print_success "Frontend built"
 
@@ -395,7 +399,7 @@ do_install_wings() {
         curl -sSL https://get.docker.com/ | sh
         systemctl enable --now docker
     } &> /tmp/aurex-wings.log &
-    spinner $! "Installing Docker"
+    spinner $! "Installing Docker" "/tmp/aurex-wings.log"
     wait $!
     print_success "Docker installed"
 
@@ -405,7 +409,7 @@ do_install_wings() {
         curl -L -o /usr/local/bin/wings "https://github.com/pterodactyl/wings/releases/latest/download/wings_linux_amd64"
         chmod +x /usr/local/bin/wings
     } &> /tmp/aurex-wings.log &
-    spinner $! "Downloading Wings binary"
+    spinner $! "Downloading Wings binary" "/tmp/aurex-wings.log"
     wait $!
     print_success "Wings downloaded"
 
