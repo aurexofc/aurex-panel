@@ -2,13 +2,11 @@
 
 namespace Pterodactyl\Exceptions;
 
-use Spatie\Ignition\Contracts\Solution;
-use Spatie\Ignition\Contracts\ProvidesSolution;
-
-class ManifestDoesNotExistException extends \Exception implements ProvidesSolution
+class ManifestDoesNotExistException extends \Exception
 {
-    public function getSolution(): Solution
-    {
-        return new Solutions\ManifestDoesNotExistSolution();
-    }
+    // NOTE: This exception intentionally does NOT implement
+    // Spatie\Ignition\Contracts\ProvidesSolution. Ignition is a dev-only
+    // package; referencing its interface here causes a fatal
+    // "Interface not found" error in production (--no-dev installs)
+    // at the exact moment this exception is thrown (missing manifest).
 }
