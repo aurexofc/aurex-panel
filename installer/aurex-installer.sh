@@ -200,15 +200,23 @@ do_install() {
     {
         # Node.js 20 (Ubuntu default is too old for modern builds)
         curl -fsSL https://deb.nodesource.com/setup_20.x | bash - 2>&1 | tail -2
+        # PHP 8.2 via sury.org (not in Ubuntu default repos)
+        curl -fsSL https://packages.sury.org/php/apt.gpg -o /etc/apt/trusted.gpg.d/php.gpg
+        echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
         apt update
+        echo "Using PHP ${PHP_V}"
         apt install -y curl unzip git nginx certbot python3-certbot-nginx nodejs \
-
             php${PHP_V}-fpm php${PHP_V}-cli php${PHP_V}-mysql php${PHP_V}-mbstring \
             php${PHP_V}-xml php${PHP_V}-curl php${PHP_V}-zip php${PHP_V}-bcmath \
             php${PHP_V}-gd php${PHP_V}-redis mysql-server redis-server
     } &> /tmp/aurex-install.log &
     spinner $! "Installing packages" "/tmp/aurex-install.log"
-    wait $!
+    if ! wait $!; then
+        print_error "Package installation failed!"
+        echo -e "  ${DIM}Last log lines from /tmp/aurex-install.log:${NC}"
+        tail -15 /tmp/aurex-install.log | sed 's/^/  /'
+        exit 1
+    fi
     # Firewall
     if [ "$SETUP_FIREWALL" = true ]; then
         print_info "Configuring firewall..."
