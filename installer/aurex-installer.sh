@@ -1,554 +1,480 @@
 #!/bin/bash
-# ============================================================================
-#   ___   __  ______  _______  __
-#  / _ | / / / / _ \/ __/ _ \/ /
-# / __ |/ /_/ / , _/ _// , _/ /__
-#/_/ |_|\____/_/|_/___/_/|_/____/
 #
-#  AUREX PANEL v1.0 — Stylish Installer
-#  https://github.com/asifofc/aurex-panel
-# ============================================================================
+# AUREX PANEL - Single-File Installer
+# Based on pterodactyl-installer logic by Vilhelm Prytz and contributors (GPL-3.0)
+# https://github.com/pterodactyl-installer/pterodactyl-installer
+#
+# Aurex: https://github.com/aurexofc/aurex-panel
+#
+# Usage: bash <(curl -sSL "https://raw.githubusercontent.com/aurexofc/aurex-panel/1.0-develop/installer/aurex-installer-v2.sh")
+#
 
 set -e
 set -o pipefail
 
-# ── Colors ──────────────────────────────────────────────────────────────────
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-GOLD='\033[38;5;220m'
-CYAN='\033[0;36m'
-BOLD='\033[1m'
-DIM='\033[2m'
-NC='\033[0m'
+# ── Colors ──
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
+CYAN='\033[0;36m'; GOLD='\033[1;33m'; NC='\033[0m'; BOLD='\033[1m'; DIM='\033[2m'
 
-# ── Helpers ─────────────────────────────────────────────────────────────────
-print_banner() {
-    echo -e "${GOLD}"
-    cat <<'BANNER'
-   ___   __  ______  _______  __
-  / _ | / / / / _ \/ __/ _ \/ /
- / __ |/ /_/ / , _/ _// , _/ /__
-/_/ |_|\____/_/|_/___/_/|_/____/
-BANNER
-    echo -e "${NC}"
-    echo -e "${BOLD}${GOLD}  ✦ AUREX PANEL — Premium Game Server Panel ✦${NC}"
-    echo -e "${DIM}  ─────────────────────────────────────────────${NC}"
-    echo ""
+output()  { echo -e "* $1"; }
+success() { echo -e "${GREEN}✓ $1${NC}"; }
+error()   { echo -e "${RED}✖ $1${NC}"; }
+warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
+info()    { echo -e "${CYAN}ℹ $1${NC}"; }
+
+print_brake() {
+  local n=${1:-70}
+  printf '%*s\n' "$n" '' | tr ' ' '-'
 }
 
-print_step() {
-    echo -e "\n${BOLD}${BLUE}▶ $1${NC}"
-    echo -e "${DIM}  ─────────────────────────────────${NC}"
+# ── Config ──
+AUREX_REPO="https://github.com/aurexofc/aurex-panel.git"
+AUREX_BRANCH="1.0-develop"
+AUREX_DIR="/var/www/aurex-panel"
+PHP_V="8.3"
+
+export DEBIAN_FRONTEND=noninteractive
+
+# ── Helpers ──
+gen_passwd() {
+  local length=$1 password=""
+  while [ ${#password} -lt "$length" ]; do
+    password+=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 64)
+  done
+  echo "$password"
 }
 
-print_success() {
-    echo -e "${GREEN}  ✓ $1${NC}"
+valid_email() {
+  [[ "$1" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]
 }
 
-print_error() {
-    echo -e "${RED}  ✗ $1${NC}"
+required_input() {
+  local __resultvar=$1 prompt="$2" err="$3"
+  local val=""
+  while [ -z "$val" ]; do
+    echo -n "* $prompt: "
+    read -r val
+    [ -z "$val" ] && error "$err"
+  done
+  eval "$__resultvar='$val'"
 }
 
-print_warning() {
-    echo -e "${YELLOW}  ⚠ $1${NC}"
+email_input() {
+  local __resultvar=$1 prompt="$2" err="$3"
+  local val=""
+  while ! valid_email "$val"; do
+    echo -n "* $prompt: "
+    read -r val
+    ! valid_email "$val" && error "$err"
+  done
+  eval "$__resultvar='$val'"
 }
 
-print_info() {
-    echo -e "${CYAN}  ℹ $1${NC}"
+password_input() {
+  local __resultvar=$1 prompt="$2" err="$3"
+  local val="" val2=""
+  while [ -z "$val" ] || [ "$val" != "$val2" ]; do
+    echo -n "* $prompt: "
+    read -rs val; echo
+    echo -n "* Confirm: "
+    read -rs val2; echo
+    { [ -z "$val" ] || [ "$val" != "$val2" ]; } && error "$err"
+  done
+  eval "$__resultvar='$val'"
 }
 
-ask() {
-    local prompt="$1" default="$2" var
-    if [ -n "$default" ]; then
-        read -p "$(echo -e "${BOLD}$prompt ${DIM}[$default]${NC}: ")" var
-        var="${var:-$default}"
-    else
-        read -p "$(echo -e "${BOLD}$prompt${NC}: ")" var
-    fi
-    echo "$var"
+# ── OS detection ──
+detect_os() {
+  if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=$ID
+    OS_VER=$VERSION_ID
+  else
+    error "Cannot detect OS. Ubuntu 22.04/24.04 or Debian 11/12 required."
+    exit 1
+  fi
+  case "$OS" in
+    ubuntu|debian) ;;
+    *) error "Unsupported OS: $OS. Ubuntu or Debian required."; exit 1 ;;
+  esac
+  output "Detected $OS $OS_VER"
 }
 
-ask_secret() {
-    local prompt="$1" var
-    read -sp "$(echo -e "${BOLD}$prompt${NC}: ")" var
-    echo ""
-    echo "$var"
+# ── Step 1: Dependencies ──
+install_dependencies() {
+  output "Installing system dependencies..."
+
+  # Wait for background auto-updates to release apt lock (fresh VPS)
+  info "Checking for background package locks..."
+  for i in $(seq 1 30); do
+    if ! fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 \
+    && ! fuser /var/lib/apt/lists/lock >/dev/null 2>&1; then
+      break
+    fi
+    if [ "$i" -eq 30 ]; then
+      info "Stopping stuck background updater..."
+      pkill -f unattended-upgr 2>/dev/null || true
+      sleep 2
+    fi
+    sleep 5
+  done
+
+  apt update
+
+  # PHP 8.3 via sury.org (battle-tested, same as pterodactyl-installer)
+  info "Adding PHP repository (sury.org)..."
+  apt install -y software-properties-common apt-transport-https ca-certificates gnupg curl
+  curl -fsSL https://packages.sury.org/php/apt.gpg -o /etc/apt/trusted.gpg.d/php.gpg
+  echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
+
+  # Node.js 20
+  info "Adding Node.js repository..."
+  curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+
+  apt update
+
+  info "Installing packages (this takes a while)..."
+  apt install -y \
+    php${PHP_V} php${PHP_V}-{cli,common,gd,mysql,mbstring,bcmath,xml,fpm,curl,zip} \
+    mariadb-common mariadb-server mariadb-client \
+    nginx redis-server \
+    zip unzip tar git cron nodejs
+
+  if [ "$CONFIGURE_LETSENCRYPT" = true ]; then
+    apt install -y certbot python3-certbot-nginx
+  fi
+
+  # Composer
+  info "Installing composer..."
+  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+  systemctl enable redis-server mariadb nginx
+  systemctl start redis-server mariadb
+
+  success "Dependencies installed!"
 }
 
-confirm() {
-    local prompt="$1" ans
-    read -p "$(echo -e "${BOLD}$prompt ${DIM}(y/n)${NC}: ")" ans
-    [[ "$ans" =~ ^[Yy]$ ]]
+# ── Step 2: Download Aurex ──
+download_aurex() {
+  output "Downloading Aurex panel..."
+  mkdir -p "$AUREX_DIR"
+  rm -rf /tmp/aurex-dl
+  git clone --depth 1 --branch "$AUREX_BRANCH" "$AUREX_REPO" /tmp/aurex-dl
+  cp -r /tmp/aurex-dl/. "$AUREX_DIR"/
+  rm -rf /tmp/aurex-dl "$AUREX_DIR"/.git
+  chmod -R 755 "$AUREX_DIR"/storage "$AUREX_DIR"/bootstrap/cache
+  cp "$AUREX_DIR"/.env.example "$AUREX_DIR"/.env 2>/dev/null || true
+  chown -R www-data:www-data "$AUREX_DIR"
+  success "Aurex downloaded!"
 }
 
-spinner() {
-    local pid=$1 msg="$2" logfile="${3:-}"
-    local spin='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
-    local i=0
-    while kill -0 $pid 2>/dev/null; do
-        local detail=""
-        if [ -n "$logfile" ] && [ -f "$logfile" ]; then
-            detail=$(grep -v '^[[:space:]]*$' "$logfile" 2>/dev/null | tail -n 1 | cut -c1-70)
-        fi
-        printf "\r\033[K  ${CYAN}%s${NC} %s... ${DIM}%s${NC}" "${spin:$i:1}" "$msg" "$detail"
-        i=$(( (i+1) % 10 ))
-        sleep 0.2
-    done
-    printf "\r\033[K"
+# ── Step 3: Composer ──
+install_composer_deps() {
+  output "Installing PHP dependencies..."
+  cd "$AUREX_DIR"
+  COMPOSER_ALLOW_SUPERUSER=1 sudo -u www-data composer install --no-dev --optimize-autoloader
+  success "PHP dependencies installed!"
 }
 
-# ── Main ────────────────────────────────────────────────────────────────────
-main() {
-    clear
-    print_banner
-
-    # Root check
-    if [ "$EUID" -ne 0 ]; then
-        print_error "Please run as root!"
-        echo -e "  ${DIM}sudo bash $0${NC}"
-        exit 1
-    fi
-
-    # Never prompt for input during package installs (mysql/tzdata hang otherwise)
-    export DEBIAN_FRONTEND=noninteractive
-
-    # Wait for background auto-updates to release the apt lock (fresh VPS)
-    print_info "Checking for background package locks..."
-    for i in $(seq 1 30); do
-        if ! fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 \
-        && ! fuser /var/lib/apt/lists/lock >/dev/null 2>&1; then
-            break
-        fi
-        if [ "$i" -eq 30 ]; then
-            print_info "Stopping stuck background updater..."
-            pkill -f unattended-upgr 2>/dev/null
-            sleep 2
-        fi
-        sleep 5
-    done
-
-    echo -e "${BOLD}What would you like to do?${NC}"
-    echo -e "  ${GOLD}1)${NC} Install Aurex Panel"
-    echo -e "  ${GOLD}2)${NC} Install Wings ${DIM}(game server daemon)${NC}"
-    echo -e "  ${GOLD}3)${NC} Install Both ${DIM}(Panel + Wings)${NC}"
-    echo -e "  ${GOLD}4)${NC} Update Aurex Panel"
-    echo -e "  ${GOLD}5)${NC} Uninstall"
-    echo ""
-    local choice
-    read -p "$(echo -e "${BOLD}Enter choice [1-5]${NC}: ")" choice
-
-    case "$choice" in
-        1) do_install ;;
-        2) do_install_wings ;;
-        3) do_install; do_install_wings ;;
-        4) do_update ;;
-        5) do_uninstall ;;
-        *) print_error "Invalid choice"; exit 1 ;;
-    esac
+# ── Step 4: Frontend ──
+build_frontend() {
+  output "Building frontend (this takes a while)..."
+  cd "$AUREX_DIR"
+  # npm/composer cache dirs must be writable by www-data (EACCES fix)
+  mkdir -p /var/www/.npm /var/www/.cache
+  chown -R www-data:www-data /var/www/.npm /var/www/.cache
+  sudo -u www-data npm install --legacy-peer-deps
+  sudo -u www-data npm run build
+  success "Frontend built!"
 }
 
-# ── Install ─────────────────────────────────────────────────────────────────
-do_install() {
-    print_step "Configuration"
+# ── Step 5: Database ──
+setup_database() {
+  output "Setting up database..."
 
-    local DOMAIN ADMIN_EMAIL ADMIN_PASSWORD MYSQL_ROOT
-    DOMAIN=$(ask "Domain/subdomain" "")
-    while [ -z "$DOMAIN" ]; do
-        print_error "Domain is required!"
-        DOMAIN=$(ask "Domain/subdomain" "")
-    done
+  # MariaDB root uses unix_socket by default on Ubuntu/Debian - no password needed
+  MYSQL_CMD="mariadb -u root"
 
-    ADMIN_EMAIL=$(ask "Admin email" "")
-    while [ -z "$ADMIN_EMAIL" ]; do
-        print_error "Admin email is required!"
-        ADMIN_EMAIL=$(ask "Admin email" "")
-    done
-    ADMIN_PASSWORD=$(ask_secret "Admin password (min 8 chars)")
-    MYSQL_ROOT=$(ask_secret "MySQL root password")
+  $MYSQL_CMD -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DB} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+  # Drop + recreate so re-runs always sync password; cover both TCP and socket hosts
+  for h in '127.0.0.1' 'localhost'; do
+    $MYSQL_CMD -e "DROP USER IF EXISTS '${MYSQL_USER}'@${h};"
+    $MYSQL_CMD -e "CREATE USER '${MYSQL_USER}'@${h} IDENTIFIED BY '${MYSQL_PASSWORD}';"
+    $MYSQL_CMD -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@${h} WITH GRANT OPTION;"
+  done
+  $MYSQL_CMD -e "FLUSH PRIVILEGES;"
 
-    local INSTALL_SSL=true
-    if ! confirm "Install free SSL certificate (Let's Encrypt)?"; then
-        INSTALL_SSL=false
-    fi
+  success "Database '${MYSQL_DB}' created!"
+}
 
-    local SETUP_FIREWALL=false
-    if confirm "Configure firewall (UFW - ports 22, 80, 443)?"; then
-        SETUP_FIREWALL=true
-    fi
+# ── Step 6: Configure ──
+configure_aurex() {
+  output "Configuring Aurex..."
+  cd "$AUREX_DIR"
 
-    echo ""
-    echo -e "${BOLD}Summary:${NC}"
-    echo -e "  Domain:      ${GOLD}${DOMAIN}${NC}"
-    echo -e "  Admin email: ${GOLD}${ADMIN_EMAIL}${NC}"
-    echo -e "  Directory:   ${DIM}/var/www/aurex-panel${NC}"
-    echo -e "  Database:    ${DIM}aurex_panel${NC}"
-    echo ""
-    if ! confirm "Start installation?"; then
-        echo "Cancelled."
-        exit 0
-    fi
+  local app_url="http://$FQDN"
+  [ "$CONFIGURE_LETSENCRYPT" = true ] && app_url="https://$FQDN"
 
-    local INSTALL_DIR="/var/www/aurex-panel"
-    local DB_NAME="aurex_panel"
-    local DB_USER="aurex_user"
-    local PHP_V="8.2"
-    local DB_PASS=$(openssl rand -base64 16 | tr -dc 'a-zA-Z0-9' | head -c 16)
+  sudo -u www-data php artisan key:generate --force
 
-    # ── Step 1: Dependencies ──
-    print_step "[1/7] Installing system dependencies"
-    {
-        # Node.js 20 (Ubuntu default is too old for modern builds)
-        curl -fsSL https://deb.nodesource.com/setup_20.x | bash - 2>&1 | tail -2
-        # PHP 8.2 via sury.org (not in Ubuntu default repos)
-        curl -fsSL https://packages.sury.org/php/apt.gpg -o /etc/apt/trusted.gpg.d/php.gpg
-        echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
-        apt update
-        echo "Using PHP ${PHP_V}"
-        apt install -y curl unzip git nginx certbot python3-certbot-nginx nodejs \
-            php${PHP_V}-fpm php${PHP_V}-cli php${PHP_V}-mysql php${PHP_V}-mbstring \
-            php${PHP_V}-xml php${PHP_V}-curl php${PHP_V}-zip php${PHP_V}-bcmath \
-            php${PHP_V}-gd php${PHP_V}-redis mysql-server redis-server
-    } &> /tmp/aurex-install.log &
-    spinner $! "Installing packages" "/tmp/aurex-install.log"
-    if ! wait $!; then
-        print_error "Package installation failed!"
-        echo -e "  ${DIM}Last log lines from /tmp/aurex-install.log:${NC}"
-        tail -15 /tmp/aurex-install.log | sed 's/^/  /'
-        exit 1
-    fi
-    # Firewall
-    if [ "$SETUP_FIREWALL" = true ]; then
-        print_info "Configuring firewall..."
-        apt install -y -qq ufw 2>&1 | tail -1
-        ufw --force enable 2>&1 | tail -1
-        ufw allow 22/tcp 2>&1 | tail -1
-        ufw allow 80/tcp 2>&1 | tail -1
-        ufw allow 443/tcp 2>&1 | tail -1
-        print_success "Firewall configured (22, 80, 443)"
-    fi
+  sudo -u www-data php artisan p:environment:setup \
+    --author="$EMAIL" \
+    --url="$app_url" \
+    --timezone="$TIMEZONE" \
+    --cache="redis" \
+    --session="redis" \
+    --queue="redis" \
+    --redis-host="localhost" \
+    --redis-pass="null" \
+    --redis-port="6379" \
+    --telemetry="false" \
+    --settings-ui=true
 
-    print_success "Dependencies installed"
+  sudo -u www-data php artisan p:environment:database \
+    --host="127.0.0.1" \
+    --port="3306" \
+    --database="$MYSQL_DB" \
+    --username="$MYSQL_USER" \
+    --password="$MYSQL_PASSWORD"
 
-    # ── Step 2: Source ──
-    print_step "[2/7] Downloading Aurex"
-    {
-        mkdir -p ${INSTALL_DIR}
-        git clone --depth 1 --branch 1.0-develop https://github.com/aurexofc/aurex-panel.git /tmp/aurex-panel
-        cp -r /tmp/aurex-panel/* ${INSTALL_DIR}/
-        cp -r /tmp/aurex-panel/.env.example ${INSTALL_DIR}/ 2>/dev/null || true
-        rm -rf /tmp/aurex-panel
-        curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer -q
-    } &> /tmp/aurex-install.log &
-    spinner $! "Downloading source code" "/tmp/aurex-install.log"
-    if ! wait $!; then
-        print_error "Source download failed! Check /tmp/aurex-install.log"
-        tail -15 /tmp/aurex-install.log | sed 's/^/  /'
-        exit 1
-    fi
-    chown -R www-data:www-data ${INSTALL_DIR}
-    print_success "Source downloaded"
+  sudo -u www-data php artisan migrate --seed --force
 
-    # ── Step 3: PHP deps ──
-    print_step "[3/7] Installing PHP packages"
-    {
-        cd ${INSTALL_DIR}
-        sudo -u www-data composer install --no-dev --optimize-autoloader -q
-    } &> /tmp/aurex-install.log &
-    spinner $! "Running composer install" "/tmp/aurex-install.log"
-    if ! wait $!; then
-        print_error "Composer install failed! Check /tmp/aurex-install.log"
-        tail -15 /tmp/aurex-install.log | sed 's/^/  /'
-        exit 1
-    fi
-    print_success "PHP packages installed"
+  # Aurex-specific seeders
+  for seeder in AurexPlansSeeder AurexTopupPackagesSeeder AurexPremiumPackageSeeder AurexPrebotSeeder; do
+    sudo -u www-data php artisan db:seed --class="Database\\Seeders\\${seeder}" --force 2>/dev/null || warning "Seeder $seeder skipped"
+  done
 
-    # ── Step 4: Frontend ──
-    print_step "[4/7] Building frontend"
-    {
-        cd ${INSTALL_DIR}
-        sudo -u www-data npm install -q 2>&1 | tail -1
-        sudo -u www-data npm run build 2>&1 | tail -1
-    } &> /tmp/aurex-install.log &
-    spinner $! "Building assets (this takes a while)" "/tmp/aurex-install.log"
-    if ! wait $!; then
-        print_error "Frontend build failed! Check /tmp/aurex-install.log"
-        tail -15 /tmp/aurex-install.log | sed 's/^/  /'
-        exit 1
-    fi
-    print_success "Frontend built"
+  sudo -u www-data php artisan p:user:make \
+    --email="$USER_EMAIL" \
+    --username="$USER_USERNAME" \
+    --name-first="$USER_FIRSTNAME" \
+    --name-last="$USER_LASTNAME" \
+    --password="$USER_PASSWORD" \
+    --admin=1
 
-    # ── Step 5: Database ──
-    print_step "[5/7] Setting up database"
-    # Try socket auth first (Ubuntu default), fallback to password
-    if mysql -u root -e "SELECT 1;" 2>/dev/null; then
-        MYSQL_CMD="mysql -u root"
-    elif mysql -u root -p"${MYSQL_ROOT}" -e "SELECT 1;" 2>/dev/null; then
-        MYSQL_CMD="mysql -u root -p${MYSQL_ROOT}"
-    else
-        print_error "Cannot connect to MySQL as root!"
-        print_info "Check your MySQL root password and try again."
-        exit 1
-    fi
-    $MYSQL_CMD -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-    # Drop + recreate so re-runs always sync the password; cover both TCP and socket hosts
-    for DBH in '127.0.0.1' 'localhost'; do
-        $MYSQL_CMD -e "DROP USER IF EXISTS '${DB_USER}'@${DBH};"
-        $MYSQL_CMD -e "CREATE USER '${DB_USER}'@${DBH} IDENTIFIED BY '${DB_PASS}';"
-        $MYSQL_CMD -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@${DBH};"
-    done
-    $MYSQL_CMD -e "FLUSH PRIVILEGES;"
-    print_success "Database '${DB_NAME}' created"
+  chown -R www-data:www-data "$AUREX_DIR"
+  success "Aurex configured!"
+}
 
-    # ── Step 6: Configure ──
-    print_step "[6/7] Configuring Aurex"
-    cd ${INSTALL_DIR}
-    cp .env.example .env 2>/dev/null || touch .env
-    APP_KEY=$(openssl rand -base64 32)
-    {
-        echo "APP_NAME=Aurex"
-        echo "APP_ENV=production"
-        echo "APP_DEBUG=false"
-        if [ "$INSTALL_SSL" = true ]; then
-            echo "APP_URL=https://${DOMAIN}"
-        else
-            echo "APP_URL=http://${DOMAIN}"
-        fi
-        echo "APP_KEY=base64:${APP_KEY}"
-        echo "APP_TIMEZONE=Asia/Karachi"
-        echo ""
-        echo "DB_CONNECTION=mysql"
-        echo "DB_HOST=127.0.0.1"
-        echo "DB_PORT=3306"
-        echo "DB_DATABASE=${DB_NAME}"
-        echo "DB_USERNAME=${DB_USER}"
-        echo "DB_PASSWORD=${DB_PASS}"
-        echo ""
-        echo "CACHE_DRIVER=redis"
-        echo "SESSION_DRIVER=redis"
-        echo "QUEUE_DRIVER=redis"
-        echo "REDIS_HOST=127.0.0.1"
-        echo "REDIS_PORT=6379"
-    } > .env
+# ── Step 7: Nginx ──
+configure_nginx() {
+  output "Configuring nginx..."
 
-    sudo -u www-data php artisan migrate --force -q
-    sudo -u www-data php artisan db:seed --force -q
-    sudo -u www-data php artisan db:seed --class=AurexPlansSeeder --force -q
-    sudo -u www-data php artisan db:seed --class=AurexTopupPackagesSeeder --force -q
-    sudo -u www-data php artisan p:user:make \
-        --email="${ADMIN_EMAIL}" --username=admin \
-        --name-first=Aurex --name-last=Admin \
-        --password="${ADMIN_PASSWORD}" --admin=1 --no-interaction -q
-    chown -R www-data:www-data ${INSTALL_DIR}
-    print_success "Aurex configured"
-
-    # ── Step 7: Web server ──
-    print_step "[7/7] Configuring web server"
-    cat > /etc/nginx/sites-available/aurex <<NGINX
+  cat > /etc/nginx/sites-available/aurex <<NGINX
 server {
     listen 80;
-    server_name ${DOMAIN};
-    root ${INSTALL_DIR}/public;
+    listen [::]:80;
+    server_name ${FQDN};
+    root ${AUREX_DIR}/public;
     index index.php;
-    client_max_body_size 100m;
-    client_body_timeout 120s;
+    charset utf-8;
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
 
-    location ~ \.php\$ {
-        fastcgi_pass unix:/var/run/php/php${PHP_V}-fpm.sock;
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    access_log off;
+    error_log  /var/log/nginx/aurex.app-error.log error;
+
+    client_max_body_size 100m;
+    client_body_timeout 120s;
+    sendfile off;
+
+    location ~ \\.php\$ {
+        fastcgi_split_path_info ^(.+\\.php)(/.+)\$;
+        fastcgi_pass unix:/run/php/php${PHP_V}-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
         include fastcgi_params;
+        fastcgi_param PHP_VALUE "upload_max_filesize = 100M \\n post_max_size=100M";
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        fastcgi_param HTTP_PROXY "";
+        fastcgi_intercept_errors off;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
     }
 
-    location ~ /\.ht {
+    location ~ /\\.ht {
         deny all;
     }
 }
 NGINX
-    ln -sf /etc/nginx/sites-available/aurex /etc/nginx/sites-enabled/
-    nginx -t -q && systemctl reload nginx
-    print_success "Nginx configured"
 
-    if [ "$INSTALL_SSL" = true ]; then
-        print_info "Installing SSL certificate..."
-        certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos -m ${ADMIN_EMAIL} -q 2>&1 | tail -1
-        print_success "SSL installed"
+  rm -f /etc/nginx/sites-enabled/default
+  ln -sf /etc/nginx/sites-available/aurex /etc/nginx/sites-enabled/aurex
+  nginx -t
+  systemctl reload nginx 2>/dev/null || systemctl restart nginx
+
+  success "Nginx configured!"
+
+  if [ "$CONFIGURE_LETSENCRYPT" = true ]; then
+    output "Installing SSL certificate..."
+    if certbot --nginx --redirect --no-eff-email --email "$EMAIL" -d "$FQDN"; then
+      success "SSL installed!"
+    else
+      warning "SSL failed - site will work over HTTP. Run certbot manually later."
     fi
+  fi
+}
 
-    # Cronjob (required for scheduled tasks)
-    print_info "Installing cronjob..."
-    (crontab -l -u www-data 2>/dev/null; echo "* * * * * php ${INSTALL_DIR}/artisan schedule:run >> /dev/null 2>&1") | crontab -u www-data -
-    print_success "Cronjob installed"
+# ── Step 8: Cron + Queue ──
+setup_services() {
+  output "Setting up background services..."
 
-    # Queue worker (aurex-queue service)
-    print_info "Installing queue worker..."
-    cat > /etc/systemd/system/aurex-queue.service <<'QSERVICE'
+  # Cronjob
+  (crontab -l -u www-data 2>/dev/null; echo "* * * * * php ${AUREX_DIR}/artisan schedule:run >> /dev/null 2>&1") | crontab -u www-data -
+  success "Cronjob installed!"
+
+  # Queue worker
+  cat > /etc/systemd/system/aurex-queue.service <<QSERVICE
 [Unit]
 Description=Aurex Queue Worker
 After=redis-server.service
-Requires=redis-server.service
 
 [Service]
 User=www-data
 Group=www-data
 Restart=always
-ExecStart=/usr/bin/php /var/www/aurex-panel/artisan queue:work --sleep=3 --tries=3 --max-time=3600
-StartLimitIntervalSec=180
+ExecStart=/usr/bin/php ${AUREX_DIR}/artisan queue:work --queue=high,standard,low --sleep=3 --tries=3
+StartLimitInterval=180
 StartLimitBurst=30
 RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
 QSERVICE
-    systemctl daemon-reload
-    systemctl enable --now aurex-queue 2>&1 | tail -1
-    print_success "Queue worker installed"
 
-    sudo -u www-data php artisan optimize:clear -q
-    systemctl reload php${PHP_V}-fpm
-
-    # ── Done ──
-    echo ""
-    echo -e "${GOLD}╔══════════════════════════════════════════╗${NC}"
-    echo -e "${GOLD}║${NC}  ${BOLD}${GREEN}✓ AUREX INSTALLED SUCCESSFULLY!${NC}      ${GOLD}║${NC}"
-    echo -e "${GOLD}╚══════════════════════════════════════════╝${NC}"
-    echo ""
-    if [ "$INSTALL_SSL" = true ]; then
-        echo -e "  🌐 URL:       ${BOLD}https://${DOMAIN}${NC}"
-    else
-        echo -e "  🌐 URL:       ${BOLD}http://${DOMAIN}${NC}"
-    fi
-    echo -e "  👤 Email:     ${ADMIN_EMAIL}"
-    echo -e "  🗄️  DB Name:   ${DB_NAME}"
-    echo -e "  🔑 DB Pass:   ${YELLOW}${DB_PASS}${NC}"
-    echo ""
-    echo -e "  ${RED}⚠  Save the DB password somewhere safe!${NC}"
-    echo ""
+  systemctl daemon-reload
+  systemctl enable aurex-queue.service
+  systemctl start aurex-queue
+  success "Queue worker installed!"
 }
 
-# ── Wings Install ───────────────────────────────────────────────────────────
-do_install_wings() {
-    print_step "Installing Wings (Game Server Daemon)"
-
-    if ! confirm "Install Wings on this machine?"; then
-        return 0
-    fi
-
-    print_info "Installing Docker..."
-    {
-        curl -sSL https://get.docker.com/ | sh
-        systemctl enable --now docker
-    } &> /tmp/aurex-wings.log &
-    spinner $! "Installing Docker" "/tmp/aurex-wings.log"
-    wait $!
-    print_success "Docker installed"
-
-    print_info "Downloading Wings..."
-    {
-        mkdir -p /etc/pterodactyl
-        curl -L -o /usr/local/bin/wings "https://github.com/pterodactyl/wings/releases/latest/download/wings_linux_amd64"
-        chmod +x /usr/local/bin/wings
-    } &> /tmp/aurex-wings.log &
-    spinner $! "Downloading Wings binary" "/tmp/aurex-wings.log"
-    wait $!
-    print_success "Wings downloaded"
-
-    print_step "Wings Configuration"
-    echo ""
-    print_warning "Go to your Aurex Panel → Admin → Nodes → Your Node"
-    print_warning "Click 'Configuration' tab and copy the auto-deploy command."
-    echo ""
-    local TOKEN
-    read -p "$(echo -e "${BOLD}Paste the Wings configure token/command here${NC}: ")" TOKEN
-
-    if [ -n "$TOKEN" ]; then
-        # If it's the full artisan command, extract token; otherwise use as-is
-        if [[ "$TOKEN" == *"wings:configure"* ]]; then
-            print_info "Running wings configuration..."
-            # User needs to run this on panel, we just set up systemd
-        fi
-    fi
-
-    # Systemd service
-    cat > /etc/systemd/system/wings.service <<'SERVICE'
-[Unit]
-Description=Aurex Wings Daemon
-After=docker.service
-Requires=docker.service
-
-[Service]
-User=root
-WorkingDirectory=/etc/pterodactyl
-LimitNOFILE=4096
-PIDFile=/var/run/wings/daemon.pid
-ExecStart=/usr/local/bin/wings
-Restart=on-failure
-StartLimitInterval=600
-
-[Install]
-WantedBy=multi-user.target
-SERVICE
-
-    systemctl daemon-reload
-    print_success "Wings service created"
-
-    echo ""
-    echo -e "${YELLOW}Manual step required:${NC}"
-    echo -e "  1. Go to ${BOLD}Panel → Admin → Nodes → Configure${NC}"
-    echo -e "  2. Copy the ${BOLD}auto-deploy command${NC}"
-    echo -e "  3. Run it on this server, then:"
-    echo -e "     ${GOLD}systemctl enable --now wings${NC}"
-    echo ""
-    if confirm "Start Wings now? (only if already configured)"; then
-        systemctl enable --now wings 2>/dev/null || print_warning "Wings not configured yet — run the auto-deploy command first"
-    fi
-
-    print_success "Wings installation complete!"
+# ── Firewall ──
+setup_firewall() {
+  if [ "$CONFIGURE_FIREWALL" = true ]; then
+    output "Configuring firewall..."
+    apt install -y ufw
+    ufw --force enable
+    ufw allow 22/tcp
+    ufw allow 80/tcp
+    ufw allow 443/tcp
+    success "Firewall configured (22, 80, 443)!"
+  fi
 }
 
-# ── Update ──────────────────────────────────────────────────────────────────
-do_update() {
-    print_step "Updating Aurex Panel"
-    local INSTALL_DIR="/var/www/aurex-panel"
-    if [ ! -d "$INSTALL_DIR" ]; then
-        print_error "Aurex not found at ${INSTALL_DIR}"
-        exit 1
-    fi
-    print_info "Pulling latest changes..."
-    cd ${INSTALL_DIR}
-    sudo -u www-data php artisan down 2>/dev/null || true
-    # Update logic here (git pull or patch)
-    sudo -u www-data php artisan migrate --force -q
-    sudo -u www-data php artisan optimize:clear -q
-    sudo -u www-data php artisan up 2>/dev/null || true
-    systemctl reload php8.2-fpm
-    print_success "Aurex updated!"
+# ── Main ──
+main() {
+  clear
+  echo -e "${GOLD}"
+  echo '    ___   __  ______  _______  __'
+  echo '   / _ | / / / / _ \/ __/ _ \ \/ /'
+  echo '  / __ |/ /_/ / , _/ _// , _/\  /'
+  echo ' /_/ |_|\____/_/|_/___/_/|_| /_/'
+  echo -e "${NC}"
+  echo -e "  ${GOLD}✦ AUREX PANEL - Premium Game Server Panel ✦${NC}"
+  print_brake 55
+  echo ""
+
+  if [ "$EUID" -ne 0 ]; then
+    error "Please run as root!"
+    exit 1
+  fi
+
+  detect_os
+
+  echo ""
+  echo -e "${BOLD}What would you like to do?${NC}"
+  echo -e "  ${GOLD}[0]${NC} Install Aurex Panel"
+  echo -e "  ${GOLD}[1]${NC} Install Wings (game server daemon)"
+  echo -e "  ${GOLD}[2]${NC} Install both on the same machine"
+  echo ""
+  echo -n "* Input 0-2: "
+  read -r ACTION
+
+  case "$ACTION" in
+    0|2) DO_PANEL=true ;;
+    1)   DO_PANEL=false ;;
+    *)   error "Invalid option"; exit 1 ;;
+  esac
+  case "$ACTION" in
+    1|2) DO_WINGS=true ;;
+    *)   DO_WINGS=false ;;
+  esac
+
+  if [ "$DO_PANEL" = true ]; then
+    echo ""
+    echo -e "${CYAN}▶ Panel Configuration${NC}"
+    print_brake 55
+    required_input FQDN "Domain/subdomain (e.g. panel.example.com)" "Domain cannot be empty"
+    email_input EMAIL "Email for SSL and admin" "Invalid email"
+    echo ""
+    echo -e "${CYAN}▶ Admin Account${NC}"
+    print_brake 55
+    email_input USER_EMAIL "Admin email" "Invalid email"
+    required_input USER_USERNAME "Admin username" "Username cannot be empty"
+    required_input USER_FIRSTNAME "Admin first name" "Cannot be empty"
+    required_input USER_LASTNAME "Admin last name" "Cannot be empty"
+    password_input USER_PASSWORD "Admin password (min 8 chars)" "Passwords empty or do not match"
+    echo ""
+    echo -n "* Install free SSL certificate (Let's Encrypt)? (y/n): "
+    read -r SSL_ASK
+    [[ "$SSL_ASK" =~ [Yy] ]] && CONFIGURE_LETSENCRYPT=true || CONFIGURE_LETSENCRYPT=false
+    echo -n "* Configure firewall (UFW - ports 22, 80, 443)? (y/n): "
+    read -r FW_ASK
+    [[ "$FW_ASK" =~ [Yy] ]] && CONFIGURE_FIREWALL=true || CONFIGURE_FIREWALL=false
+
+    MYSQL_DB="aurex_panel"
+    MYSQL_USER="aurex_user"
+    MYSQL_PASSWORD=$(gen_passwd 32)
+    TIMEZONE="Asia/Karachi"
+
+    echo ""
+    echo -e "${BOLD}Summary:${NC}"
+    echo -e "  Domain:       ${GOLD}${FQDN}${NC}"
+    echo -e "  Admin email:  ${GOLD}${USER_EMAIL}${NC}"
+    echo -e "  Directory:    ${DIM}${AUREX_DIR}${NC}"
+    echo -e "  Database:     ${DIM}${MYSQL_DB}${NC}"
+    echo ""
+    echo -n "* Start installation? (y/n): "
+    read -r GO
+    [[ ! "$GO" =~ [Yy] ]] && error "Aborted." && exit 1
+
+    echo ""
+    install_dependencies
+    setup_firewall
+    download_aurex
+    install_composer_deps
+    build_frontend
+    setup_database
+    configure_aurex
+    configure_nginx
+    setup_services
+
+    echo ""
+    print_brake 55
+    echo -e "${GREEN}${BOLD}  ✓ AUREX PANEL INSTALLED SUCCESSFULLY!${NC}"
+    print_brake 55
+    echo -e "  🌐 URL:       ${GOLD}https://${FQDN}${NC}"
+    echo -e "  👤 Email:     ${USER_EMAIL}"
+    echo -e "  🗄️  DB Name:   ${MYSQL_DB}"
+    echo -e "  🔑 DB Pass:   ${GOLD}${MYSQL_PASSWORD}${NC}"
+    echo ""
+    echo -e "  ${RED}⚠ Save the DB password somewhere safe!${NC}"
+    echo ""
+  fi
+
+  if [ "$DO_WINGS" = true ]; then
+    echo ""
+    warning "Wings installation: use the official pterodactyl-installer wings script,"
+    echo "  then configure it to point at your Aurex panel."
+    echo "  See: https://github.com/pterodactyl-installer/pterodactyl-installer"
+  fi
 }
 
-# ── Uninstall ───────────────────────────────────────────────────────────────
-do_uninstall() {
-    print_warning "This will REMOVE Aurex Panel completely!"
-    if ! confirm "Are you sure?"; then
-        echo "Cancelled."
-        exit 0
-    fi
-    print_step "Uninstalling..."
-    systemctl stop aurex-queue 2>/dev/null || true
-    systemctl disable aurex-queue 2>/dev/null || true
-    rm -f /etc/systemd/system/aurex-queue.service
-    systemctl daemon-reload
-    crontab -u www-data -l 2>/dev/null | grep -v "aurex-panel/artisan schedule:run" | crontab -u www-data - 2>/dev/null || true
-    rm -rf /var/www/aurex-panel
-    rm -f /etc/nginx/sites-enabled/aurex /etc/nginx/sites-available/aurex
-    systemctl reload nginx
-    print_success "Aurex uninstalled."
-    print_info "Database 'aurex_panel' was NOT deleted (manual cleanup if needed)."
-}
-
-# ── Run ─────────────────────────────────────────────────────────────────────
-main "$@"
+main
