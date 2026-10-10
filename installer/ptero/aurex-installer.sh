@@ -51,23 +51,8 @@ execute() {
   fi
 }
 
-# Override run_installer/run_ui/update_lib_source to use our ptero subpath
-export GITHUB_URL="$GITHUB_BASE_URL/$GITHUB_SOURCE/$GITHUB_PATH"
-
-update_lib_source() {
-  GITHUB_URL="$GITHUB_BASE_URL/$GITHUB_SOURCE/$GITHUB_PATH"
-  curl -sSL -o /tmp/lib.sh "$GITHUB_URL"/lib/lib.sh
-  # shellcheck source=lib/lib.sh
-  source /tmp/lib.sh
-}
-
-run_installer() {
-  bash <(curl -sSL "$GITHUB_URL/installers/$1.sh")
-}
-
-run_ui() {
-  bash <(curl -sSL "$GITHUB_URL/ui/$1.sh")
-}
+# lib.sh already points GITHUB_URL at our installer/ptero subpath,
+# so run_installer / run_ui / update_lib_source work as-is.
 
 print_aurex_banner() {
   echo -e "\033[1;33m"

@@ -53,7 +53,7 @@ export PANEL_DL_URL="https://github.com/pterodactyl/panel/releases/latest/downlo
 export WINGS_DL_BASE_URL="https://github.com/pterodactyl/wings/releases/latest/download/wings_linux_"
 export MARIADB_URL="https://downloads.mariadb.com/MariaDB/mariadb_repo_setup"
 export GITHUB_BASE_URL=${GITHUB_BASE_URL:-"https://raw.githubusercontent.com/pterodactyl-installer/pterodactyl-installer"}
-export GITHUB_URL="$GITHUB_BASE_URL/$GITHUB_SOURCE"
+export GITHUB_URL="$GITHUB_BASE_URL/$GITHUB_SOURCE/installer/ptero"
 
 # Colors
 COLOR_YELLOW='\033[1;33m'
@@ -147,7 +147,7 @@ get_latest_versions() {
 }
 
 update_lib_source() {
-  GITHUB_URL="$GITHUB_BASE_URL/$GITHUB_SOURCE"
+  GITHUB_URL="$GITHUB_BASE_URL/$GITHUB_SOURCE/installer/ptero"
   rm -rf /tmp/lib.sh
   curl -sSL -o /tmp/lib.sh "$GITHUB_URL"/lib/lib.sh
   # shellcheck source=lib/lib.sh
