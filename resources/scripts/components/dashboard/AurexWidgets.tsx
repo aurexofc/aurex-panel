@@ -11,40 +11,59 @@ import useTranslation from '@/plugins/useTranslation';
 import useCountUp from '@/plugins/useCountUp';
 
 const glowPulse = keyframes`
-    0%, 100% { box-shadow: 0 0 22px rgb(var(--aurex-400) / 0.12); }
-    50% { box-shadow: 0 0 40px rgb(var(--aurex-400) / 0.28); }
+    0%, 100% { box-shadow: 0 0 22px rgb(var(--aurex-400) / 0.12), 0 8px 32px rgba(0, 0, 0, 0.4); }
+    50% { box-shadow: 0 0 48px rgb(var(--aurex-400) / 0.32), 0 8px 32px rgba(0, 0, 0, 0.4); }
+`;
+
+const shimmer = keyframes`
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
 `;
 
 const CardGrid = styled.div`
-    ${tw`grid gap-4 md:grid-cols-3 mb-6`};
+    ${tw`grid gap-5 md:grid-cols-3 mb-8`};
 `;
 
 const WidgetCard = styled(Link)`
-    ${tw`relative rounded-xl p-5 flex items-center gap-4 no-underline overflow-hidden transition-all duration-200`};
-    background: linear-gradient(150deg, rgb(var(--aurex-surface)) 0%, rgb(var(--aurex-bg)) 70%);
-    border: 1px solid rgb(var(--aurex-border) / 0.55);
+    ${tw`relative rounded-2xl p-6 flex items-center gap-5 no-underline overflow-hidden transition-all duration-300`};
+    background:
+        linear-gradient(160deg, rgb(var(--aurex-surface-2)) 0%, rgb(var(--aurex-surface)) 45%, rgb(var(--aurex-bg)) 100%) padding-box,
+        linear-gradient(155deg, rgb(var(--aurex-300) / 0.7), rgb(var(--aurex-600) / 0.15) 40%, transparent 70%) border-box;
+    border: 1px solid transparent;
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45);
 
     &::before {
         content: '';
         ${tw`absolute top-0 left-0 right-0`};
-        height: 3px;
-        background: linear-gradient(90deg, transparent, #d8b24a, transparent);
-        opacity: 0.65;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #f6e27a, #d8b24a, #f6e27a, transparent);
+        background-size: 200% 100%;
+        animation: ${shimmer} 3.5s linear infinite;
+        opacity: 0.8;
+    }
+
+    &::after {
+        content: '';
+        ${tw`absolute inset-0 pointer-events-none`};
+        background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(246, 226, 122, 0.09), transparent);
     }
 
     &:hover {
-        ${tw`-translate-y-0.5`};
-        border-color: rgb(var(--aurex-400) / 0.55);
+        ${tw`-translate-y-1`};
+        border-color: rgb(var(--aurex-400) / 0.4);
         animation: ${glowPulse} 2.2s ease-in-out infinite;
     }
 `;
 
 const IconBadge = styled.div`
-    ${tw`flex items-center justify-center rounded-full flex-shrink-0`};
-    width: 3.25rem;
-    height: 3.25rem;
-    background: radial-gradient(circle at 35% 30%, rgba(246, 226, 122, 0.3), rgba(216, 178, 74, 0.07));
-    border: 1px solid rgba(216, 178, 74, 0.45);
+    ${tw`flex items-center justify-center rounded-2xl flex-shrink-0 relative`};
+    width: 4rem;
+    height: 4rem;
+    background:
+        radial-gradient(circle at 35% 30%, rgba(246, 226, 122, 0.35), rgba(216, 178, 74, 0.08)),
+        linear-gradient(150deg, rgb(var(--aurex-surface-2)), rgb(var(--aurex-bg)));
+    border: 1px solid rgba(216, 178, 74, 0.5);
+    box-shadow: 0 0 24px rgba(216, 178, 74, 0.18), inset 0 1px 0 rgba(246, 226, 122, 0.2);
 `;
 
 const Banner = styled.div`

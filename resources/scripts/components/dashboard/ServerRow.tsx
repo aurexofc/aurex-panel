@@ -27,23 +27,39 @@ const statusColor = ($status: ServerPowerState | undefined): string => {
 };
 
 const Blade = styled(Link)<{ $status: ServerPowerState | undefined }>`
-    ${tw`relative grid grid-cols-12 gap-3 rounded-xl px-4 py-4 no-underline overflow-hidden transition-all duration-200 items-center`};
-    background: linear-gradient(150deg, rgb(var(--aurex-surface)) 0%, rgb(var(--aurex-bg)) 75%);
-    border: 1px solid rgb(var(--aurex-border) / 0.45);
-
-    &:hover {
-        ${tw`-translate-y-0.5`};
-        border-color: rgb(var(--aurex-400) / 0.5);
-        box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55), 0 0 28px rgb(var(--aurex-400) / 0.16);
-    }
+    ${tw`relative rounded-2xl p-6 no-underline overflow-hidden transition-all duration-300 block`};
+    background:
+        linear-gradient(165deg, rgb(var(--aurex-surface-2)) 0%, rgb(var(--aurex-surface)) 50%, rgb(var(--aurex-bg)) 100%) padding-box,
+        linear-gradient(150deg, rgb(var(--aurex-300) / 0.5), rgb(var(--aurex-600) / 0.12) 45%, rgb(var(--aurex-border) / 0.4) 100%) border-box;
+    border: 1px solid transparent;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 
     &::before {
         content: '';
-        ${tw`absolute left-0 top-0 bottom-0`};
-        width: 4px;
+        ${tw`absolute top-0 left-0 right-0`};
+        height: 4px;
         background: ${({ $status }) => statusColor($status)};
-        box-shadow: 0 0 14px ${({ $status }) => statusColor($status)};
+        box-shadow: 0 0 18px ${({ $status }) => statusColor($status)};
     }
+
+    &::after {
+        content: '';
+        ${tw`absolute inset-0 pointer-events-none`};
+        background: radial-gradient(ellipse 90% 50% at 50% 0%, rgba(246, 226, 122, 0.06), transparent);
+    }
+
+    &:hover {
+        ${tw`-translate-y-1`};
+        border-color: rgb(var(--aurex-400) / 0.45);
+        box-shadow: 0 18px 52px rgba(0, 0, 0, 0.6), 0 0 36px rgb(var(--aurex-400) / 0.18);
+    }
+`;
+
+const StatusPill = styled.span<{ $status: ServerPowerState | undefined }>`
+    ${tw`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest`};
+    background: ${({ $status }) => statusColor($status)}1a;
+    border: 1px solid ${({ $status }) => statusColor($status)}66;
+    color: ${({ $status }) => statusColor($status)};
 `;
 
 const Led = styled.span<{ $status: ServerPowerState | undefined }>`
@@ -142,31 +158,38 @@ export default ({ server, className }: { server: Server; className?: string }) =
 
     return (
         <Blade to={`/server/${server.id}`} className={className} $status={stats?.status}>
-            <div css={tw`flex items-center gap-4 col-span-12 lg:col-span-5`}>
-                <IconBadge>
-                    <FontAwesomeIcon icon={faServer} css={tw`text-primary-300`} />
-                </IconBadge>
-                <div css={tw`min-w-0`}>
-                    <p css={tw`flex items-center gap-2 text-lg font-bold text-panel-text break-words`}>
-                        <Led $status={stats?.status} />
-                        <span css={tw`truncate`}>{server.name}</span>
-                    </p>
-                    {!!server.description && (
-                        <p css={tw`text-sm text-panel-text-dim break-words line-clamp-1 mt-0.5`}>{server.description}</p>
-                    )}
-                    <p css={tw`text-xs text-panel-text-dim mt-1 flex items-center gap-1.5`}>
-                        <FontAwesomeIcon icon={faEthernet} css={tw`text-panel-text-dim`} />
-                        {server.allocations
-                            .filter((alloc) => alloc.isDefault)
-                            .map((allocation) => (
-                                <React.Fragment key={allocation.ip + allocation.port.toString()}>
-                                    {allocation.alias || ip(allocation.ip)}:{allocation.port}
-                                </React.Fragment>
-                            ))}
-                    </p>
+            {/* Header: icon + name + status */}
+            <div css={tw`flex items-start justify-between gap-4 mb-5`}>
+                <div css={tw`flex items-center gap-4 min-w-0`}>
+                    <IconBadge>
+                        <FontAwesomeIcon icon={faServer} size={'lg'} css={tw`text-primary-300`} />
+                    </IconBadge>
+                    <div css={tw`min-w-0`}>
+                        <p css={tw`flex items-center gap-2 text-xl font-extrabold text-panel-text break-words`}>
+                            <Led $status={stats?.status} />
+                            <span css={tw`truncate`}>{server.name}</span>
+                        </p>
+                        {!!server.description && (
+                            <p css={tw`text-sm text-panel-text-dim break-words line-clamp-1 mt-1`}>{server.description}</p>
+                        )}
+                        <p css={tw`text-xs text-panel-text-dim mt-1.5 flex items-center gap-1.5`}>
+                            <FontAwesomeIcon icon={faEthernet} />
+                            {server.allocations
+                                .filter((alloc) => alloc.isDefault)
+                                .map((allocation) => (
+                                    <React.Fragment key={allocation.ip + allocation.port.toString()}>
+                                        {allocation.alias || ip(allocation.ip)}:{allocation.port}
+                                    </React.Fragment>
+                                ))}
+                        </p>
+                    </div>
                 </div>
+                <StatusPill $status={stats?.status}>
+                    {stats?.status === 'running' ? '● Online' : stats?.status === 'offline' ? '● Offline' : '● ' + (stats?.status || '…')}
+                </StatusPill>
             </div>
-            <div css={tw`col-span-12 lg:col-span-7`}>
+            {/* Stats */}
+            <div css={tw`pt-4`} style={{ borderTop: '1px solid rgb(var(--aurex-border) / 0.4)' }}>
                 {!stats || isSuspended || server.isNodeUnderMaintenance ? (
                     isSuspended ? (
                         <div css={tw`flex items-center gap-3`}>
@@ -196,51 +219,51 @@ export default ({ server, className }: { server: Server; className?: string }) =
                         <Spinner size={'small'} />
                     )
                 ) : (
-                    <div css={tw`grid grid-cols-3 gap-4`}>
+                    <div css={tw`grid grid-cols-3 gap-5`}>
                         <div>
-                            <div css={tw`flex items-center justify-between`}>
-                                <span css={tw`flex items-center`}>
+                            <div css={tw`flex items-center justify-between mb-1`}>
+                                <span css={tw`flex items-center gap-1.5`}>
                                     <Icon icon={faMicrochip} $alarm={alarms.cpu} />
                                     <IconDescription $alarm={alarms.cpu}>
-                                        {stats.cpuUsagePercent.toFixed(1)}%
+                                        {stats.cpuUsagePercent.toFixed(0)}%
                                     </IconDescription>
                                 </span>
-                                <span css={tw`text-[11px] text-panel-text-dim`}>{t.serverRow.cpu}</span>
+                                <span css={tw`text-[10px] uppercase tracking-wider text-panel-text-dim font-bold`}>{t.serverRow.cpu}</span>
                             </div>
                             <Bar>
                                 <Fill $pct={cpuPct} $alarm={alarms.cpu} />
                             </Bar>
-                            <p css={tw`text-[11px] text-panel-text-dim mt-1`}>{t.serverRow.ofLimit(cpuLimit)}</p>
+                            <p css={tw`text-[11px] text-panel-text-dim mt-1.5`}>{t.serverRow.ofLimit(cpuLimit)}</p>
                         </div>
                         <div>
-                            <div css={tw`flex items-center justify-between`}>
-                                <span css={tw`flex items-center`}>
+                            <div css={tw`flex items-center justify-between mb-1`}>
+                                <span css={tw`flex items-center gap-1.5`}>
                                     <Icon icon={faMemory} $alarm={alarms.memory} />
                                     <IconDescription $alarm={alarms.memory}>
                                         {bytesToString(stats.memoryUsageInBytes)}
                                     </IconDescription>
                                 </span>
-                                <span css={tw`text-[11px] text-panel-text-dim`}>{t.serverRow.ram}</span>
+                                <span css={tw`text-[10px] uppercase tracking-wider text-panel-text-dim font-bold`}>{t.serverRow.ram}</span>
                             </div>
                             <Bar>
                                 <Fill $pct={memPct} $alarm={alarms.memory} />
                             </Bar>
-                            <p css={tw`text-[11px] text-panel-text-dim mt-1`}>{t.serverRow.ofLimit(memoryLimit)}</p>
+                            <p css={tw`text-[11px] text-panel-text-dim mt-1.5`}>{t.serverRow.ofLimit(memoryLimit)}</p>
                         </div>
                         <div>
-                            <div css={tw`flex items-center justify-between`}>
-                                <span css={tw`flex items-center`}>
+                            <div css={tw`flex items-center justify-between mb-1`}>
+                                <span css={tw`flex items-center gap-1.5`}>
                                     <Icon icon={faHdd} $alarm={alarms.disk} />
                                     <IconDescription $alarm={alarms.disk}>
                                         {bytesToString(stats.diskUsageInBytes)}
                                     </IconDescription>
                                 </span>
-                                <span css={tw`text-[11px] text-panel-text-dim`}>{t.serverRow.disk}</span>
+                                <span css={tw`text-[10px] uppercase tracking-wider text-panel-text-dim font-bold`}>{t.serverRow.disk}</span>
                             </div>
                             <Bar>
                                 <Fill $pct={diskPct} $alarm={alarms.disk} />
                             </Bar>
-                            <p css={tw`text-[11px] text-panel-text-dim mt-1`}>{t.serverRow.ofLimit(diskLimit)}</p>
+                            <p css={tw`text-[11px] text-panel-text-dim mt-1.5`}>{t.serverRow.ofLimit(diskLimit)}</p>
                         </div>
                     </div>
                 )}
