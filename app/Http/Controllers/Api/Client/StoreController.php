@@ -102,6 +102,13 @@ class StoreController extends ClientApiController
             ]);
         }
 
+        // Build environment from egg variable defaults so required
+        // variables pass validation (empty array fails required rules).
+        $environment = [];
+        foreach ($egg->variables as $variable) {
+            $environment[$variable->env_variable] = $variable->default_value;
+        }
+
         try {
             $server = $this->creationService->handle([
                 'name' => $data['name'],
@@ -109,7 +116,7 @@ class StoreController extends ClientApiController
                 'egg_id' => $egg->id,
                 'docker_image' => $image,
                 'startup' => $egg->startup,
-                'environment' => [],
+                'environment' => $environment,
                 'allocation_id' => $allocation->id,
                 'memory' => $plan->memory,
                 'swap' => 0,
@@ -189,6 +196,13 @@ class StoreController extends ClientApiController
             throw new DisplayException('The selected server type has no docker image. Please contact support.');
         }
 
+        // Build environment from egg variable defaults so required
+        // variables pass validation.
+        $environment = [];
+        foreach ($egg->variables as $variable) {
+            $environment[$variable->env_variable] = $variable->default_value;
+        }
+
         try {
             $server = $this->creationService->handle([
                 'name' => $data['name'],
@@ -196,7 +210,7 @@ class StoreController extends ClientApiController
                 'egg_id' => $egg->id,
                 'docker_image' => $image,
                 'startup' => $egg->startup,
-                'environment' => [],
+                'environment' => $environment,
                 'allocation_id' => $allocation->id,
                 'memory' => 2048,
                 'swap' => 0,

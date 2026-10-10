@@ -85,6 +85,15 @@ class PrebotController extends ClientApiController
             'prebot_name' => $prebot->name,
         ]);
 
+        // Build environment from egg variable defaults, then override
+        // with prebot-specific values. Required variables must have values.
+        $environment = [];
+        foreach ($egg->variables as $variable) {
+            $environment[$variable->env_variable] = $variable->default_value;
+        }
+        $environment['BOT_REPO'] = $prebot->github_url;
+        $environment['BOT_NAME'] = $prebot->name;
+
         try {
             $server = $this->creationService->handle([
                 'name' => $data['name'],
@@ -92,10 +101,7 @@ class PrebotController extends ClientApiController
                 'egg_id' => $egg->id,
                 'docker_image' => $image,
                 'startup' => $egg->startup,
-                'environment' => [
-                    'BOT_REPO' => $prebot->github_url,
-                    'BOT_NAME' => $prebot->name,
-                ],
+                'environment' => $environment,
                 'allocation_id' => $allocation->id,
                 'memory' => $prebot->memory,
                 'swap' => 0,
