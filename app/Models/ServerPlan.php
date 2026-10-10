@@ -54,4 +54,12 @@ class ServerPlan extends Model
     {
         return $this->belongsTo(Egg::class);
     }
+
+    /**
+     * Aurex models use auto-increment id, not uuid, for route binding.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'id';
+    }
 }
