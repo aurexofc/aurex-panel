@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ContentBox from '@/components/elements/ContentBox';
 import Button from '@/components/elements/Button';
 import Spinner from '@/components/elements/Spinner';
@@ -28,6 +28,7 @@ export default ({ onEarned }: Props) => {
     const [countdown, setCountdown] = useState(0);
     const [busy, setBusy] = useState(false);
     const [cooldownTick, setCooldownTick] = useState(0);
+    const adRef = useRef<HTMLDivElement>(null);
 
     const refresh = () => {
         getAdStatus()
@@ -52,12 +53,27 @@ export default ({ onEarned }: Props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status, cooldownTick]);
 
-    // Demo ad countdown.
+    // Ad countdown — runs for both demo and custom ad networks.
     useEffect(() => {
-        if (!session || session.ad_html || countdown <= 0) return;
+        if (!session || countdown <= 0) return;
         const t = setTimeout(() => setCountdown((v) => v - 1), 1000);
         return () => clearTimeout(t);
     }, [session, countdown]);
+
+    // Re-insert <script> tags as live nodes so ad network code actually executes.
+    // (Scripts via innerHTML/dangerouslySetInnerHTML never run.)
+    useEffect(() => {
+        if (!session?.ad_html || !adRef.current) return;
+        adRef.current.innerHTML = session.ad_html;
+        adRef.current.querySelectorAll('script').forEach((oldScript) => {
+            const script = document.createElement('script');
+            Array.from(oldScript.attributes).forEach((attr) =>
+                script.setAttribute(attr.name, attr.value)
+            );
+            script.textContent = oldScript.textContent;
+            oldScript.replaceWith(script);
+        });
+    }, [session]);
 
     const begin = () => {
         setBusy(true);
@@ -106,11 +122,18 @@ export default ({ onEarned }: Props) => {
             ) : session ? (
                 <div>
                     {session.ad_html ? (
-                        <div
-                            css={tw`my-4 rounded-lg overflow-hidden`}
-                            style={{ border: '1px solid rgb(var(--aurex-border) / 0.6)' }}
-                            dangerouslySetInnerHTML={{ __html: session.ad_html }}
-                        />
+                        <>
+                            <div
+                                ref={adRef}
+                                css={tw`my-4 rounded-lg overflow-hidden flex justify-center`}
+                                style={{ border: '1px solid rgb(var(--aurex-border) / 0.6)', minHeight: '120px' }}
+                            />
+                            <p css={tw`text-panel-text-dim text-sm text-center mb-4`}>
+                                {countdown > 0
+                                    ? t.ads.pleaseWait(countdown)
+                                    : t.ads.thanksWatching}
+                            </p>
+                        </>
                     ) : (
                         <DemoAd>
                             <p css={tw`text-primary-400 font-bold text-2xl`}>AUREX</p>
@@ -127,7 +150,7 @@ export default ({ onEarned }: Props) => {
                     <div css={tw`flex gap-4`}>
                         <Button
                             color={'primary'}
-                            disabled={busy || (!session.ad_html && countdown > 0)}
+                            disabled={busy || countdown > 0}
                             onClick={claim}
                         >
                             <FontAwesomeIcon icon={faCheck} css={tw`mr-2`} />

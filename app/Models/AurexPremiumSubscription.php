@@ -10,6 +10,14 @@ class AurexPremiumSubscription extends Model
 {
     protected $table = 'aurex_premium_subscriptions';
 
+    /**
+     * Use the numeric id for route binding (no uuid column on this table).
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'id';
+    }
+
     protected $fillable = [
         'user_id', 'package_id', 'starts_at', 'expires_at', 'active',
     ];

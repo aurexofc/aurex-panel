@@ -19,6 +19,9 @@
         <div class="box box-primary">
             <div class="box-header with-border">
                 <h3 class="box-title">👑 Premium Packages</h3>
+                <div class="box-tools">
+                    <a href="{{ route('admin.aurex.premium.users') }}" class="btn btn-warning btn-sm">👑 Premium Users</a>
+                </div>
             </div>
             <div class="box-body table-responsive no-padding">
                 <table class="table table-hover">
