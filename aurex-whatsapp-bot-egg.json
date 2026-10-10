@@ -1,1 +1,65 @@
-{"_comment":"AUREX WhatsApp Bot egg for PreBots. Install script clones the BOT_REPO env var set by the panel, then runs npm install. Import in Admin > Nests, then assign to each PreBot in Admin > Aurex > PreBots.","author":"team@aurex","config":{"files":"{}","logs":"{}","startup":"{\"done\": \"\", \"userInteraction\": []}","stop":"^C"},"description":"Node.js 20 egg for Aurex PreBots. Clones the bot repo from the BOT_REPO variable on install. Includes ffmpeg for sticker/media bots.","docker_images":{"ghcr.io/pterodactyl/yolks:nodejs_20":"ghcr.io/pterodactyl/yolks:nodejs_20"},"exported_at":"2026-10-08T12:36:00+05:00","features":["eula","ssl","docker_image_update"],"file_denylist":[],"meta":{"update_url":null,"version":"PTDL_v2"},"name":"Aurex WhatsApp Bot","scripts":{"installation":{"container":"node:20-bookworm-slim","entrypoint":"bash","script":"#!/bin/bash\n# Aurex WhatsApp Bot install - clones the repo from $BOT_REPO\ncd /mnt/server || exit 1\n\napt-get update -qq\napt-get install -y -qq git ffmpeg > /dev/null 2>&1 || true\n\nif [ -z \"${BOT_REPO}\" ]; then\n  echo \"ERROR: BOT_REPO is not set. This egg must be deployed via the Aurex PreBots store.\"\n  exit 1\nfi\n\necho \"Cloning ${BOT_REPO} ...\"\ngit clone --depth=1 \"${BOT_REPO}\" bot_tmp\nshopt -s dotglob\nmv bot_tmp/* ./\nrm -rf bot_tmp\n\nif [ -f package.json ]; then\n  echo \"Installing dependencies...\"\n  npm install --no-audit --no-fund\nfi\n\necho \"Install complete: ${BOT_NAME:-WhatsApp Bot}\"\n"}},"startup":"node .","tags":["nodejs","whatsapp","bot"],"update_url":null,"variables":[{"default_value":"","description":"GitHub URL of the WhatsApp bot to install. Set automatically by the Aurex PreBots store.","env_variable":"BOT_REPO","field_type":"text","name":"Bot Repository","rules":"nullable|string|max:255","user_editable":false,"user_viewable":false},{"default_value":"Aurex Bot","description":"Display name of the bot. Set automatically by the Aurex PreBots store.","env_variable":"BOT_NAME","field_type":"text","name":"Bot Name","rules":"nullable|string|max:191","user_editable":false,"user_viewable":true}]}
+{
+  "_comment": "AUREX WhatsApp Bot egg for PreBots. Install script clones the BOT_REPO env var set by the panel, then runs npm install. Import in Admin > Nests, then assign to each PreBot in Admin > Aurex > PreBots.",
+  "author": "team@aurex",
+  "config": {
+    "files": "{}",
+    "logs": "{}",
+    "startup": "{\"done\": \"\", \"userInteraction\": []}",
+    "stop": "^C"
+  },
+  "description": "Node.js 20 egg for Aurex PreBots. Clones the bot repo from the BOT_REPO variable on install. Includes ffmpeg for sticker/media bots.",
+  "docker_images": {
+    "ghcr.io/pterodactyl/yolks:nodejs_18": "ghcr.io/pterodactyl/yolks:nodejs_18",
+    "ghcr.io/pterodactyl/yolks:nodejs_20": "ghcr.io/pterodactyl/yolks:nodejs_20",
+    "ghcr.io/pterodactyl/yolks:nodejs_21": "ghcr.io/pterodactyl/yolks:nodejs_21",
+    "ghcr.io/pterodactyl/yolks:nodejs_22": "ghcr.io/pterodactyl/yolks:nodejs_22"
+  },
+  "exported_at": "2026-10-08T12:36:00+05:00",
+  "features": [
+    "eula",
+    "ssl",
+    "docker_image_update"
+  ],
+  "file_denylist": [],
+  "meta": {
+    "update_url": null,
+    "version": "PTDL_v2"
+  },
+  "name": "Aurex WhatsApp Bot",
+  "scripts": {
+    "installation": {
+      "container": "node:20-bookworm-slim",
+      "entrypoint": "bash",
+      "script": "#!/bin/bash\n# Aurex WhatsApp Bot install - clones the repo from $BOT_REPO\ncd /mnt/server || exit 1\n\napt-get update -qq\napt-get install -y -qq git ffmpeg > /dev/null 2>&1 || true\n\nif [ -z \"${BOT_REPO}\" ]; then\n  echo \"ERROR: BOT_REPO is not set. This egg must be deployed via the Aurex PreBots store.\"\n  exit 1\nfi\n\necho \"Cloning ${BOT_REPO} ...\"\ngit clone --depth=1 \"${BOT_REPO}\" bot_tmp\nshopt -s dotglob\nmv bot_tmp/* ./\nrm -rf bot_tmp\n\nif [ -f package.json ]; then\n  echo \"Installing dependencies...\"\n  npm install --no-audit --no-fund\nfi\n\necho \"Install complete: ${BOT_NAME:-WhatsApp Bot}\"\n"
+    }
+  },
+  "startup": "node .",
+  "tags": [
+    "nodejs",
+    "whatsapp",
+    "bot"
+  ],
+  "update_url": null,
+  "variables": [
+    {
+      "default_value": "",
+      "description": "GitHub URL of the WhatsApp bot to install. Set automatically by the Aurex PreBots store.",
+      "env_variable": "BOT_REPO",
+      "field_type": "text",
+      "name": "Bot Repository",
+      "rules": "nullable|string|max:255",
+      "user_editable": false,
+      "user_viewable": false
+    },
+    {
+      "default_value": "Aurex Bot",
+      "description": "Display name of the bot. Set automatically by the Aurex PreBots store.",
+      "env_variable": "BOT_NAME",
+      "field_type": "text",
+      "name": "Bot Name",
+      "rules": "nullable|string|max:191",
+      "user_editable": false,
+      "user_viewable": true
+    }
+  ]
+}
