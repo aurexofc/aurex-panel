@@ -135,8 +135,8 @@ class StoreController extends ClientApiController
 
             throw new DisplayException(
                 $isPremiumFree
-                    ? 'Server creation failed. Please try again.'
-                    : 'Server creation failed and your coins were refunded. Please try again.'
+                    ? 'Server creation failed: '.$exception->getMessage()
+                    : 'Server creation failed and your coins were refunded: '.$exception->getMessage()
             );
         }
 
@@ -209,7 +209,11 @@ class StoreController extends ClientApiController
                 'description' => 'Aurex premium direct Node.js server',
             ]);
         } catch (\Throwable $exception) {
-            throw new DisplayException('Server creation failed. Please try again.');
+            \Log::error('Aurex direct server creation failed: '.$exception->getMessage(), [
+                'egg_id' => $egg->id ?? null,
+                'egg_name' => $egg->name ?? null,
+            ]);
+            throw new DisplayException('Server creation failed: '.$exception->getMessage());
         }
 
         return new JsonResponse([
