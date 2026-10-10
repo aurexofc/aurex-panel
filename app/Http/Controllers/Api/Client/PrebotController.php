@@ -59,7 +59,9 @@ class PrebotController extends ClientApiController
             throw new DisplayException($msg);
         }
 
-        if ($user->coins_balance < $prebot->price_coins) {
+        $isPremiumFree = $user->is_premium;
+
+        if (!$isPremiumFree && $user->coins_balance < $prebot->price_coins) {
             throw new DisplayException('Insufficient coins. Watch ads or invite friends to earn more.');
         }
 
@@ -80,10 +82,13 @@ class PrebotController extends ClientApiController
         }
 
         // Deduct first so a double-submit cannot create two servers.
-        $user->spendCoins($prebot->price_coins, 'prebot_purchase', [
-            'prebot_id' => $prebot->id,
-            'prebot_name' => $prebot->name,
-        ]);
+        // Premium users deploy free — no coin deduction.
+        if (!$isPremiumFree) {
+            $user->spendCoins($prebot->price_coins, 'prebot_purchase', [
+                'prebot_id' => $prebot->id,
+                'prebot_name' => $prebot->name,
+            ]);
+        }
 
         // Build environment from egg variable defaults, then override
         // with prebot-specific values. Required variables must have values.
@@ -114,18 +119,27 @@ class PrebotController extends ClientApiController
                 'description' => "Aurex PreBot: {$prebot->name}",
             ]);
         } catch (\Throwable $exception) {
-            $user->awardCoins($prebot->price_coins, 'refund_prebot_failed', [
-                'prebot_id' => $prebot->id,
-                'error' => $exception->getMessage(),
-            ]);
+            if (!$isPremiumFree) {
+                $user->awardCoins($prebot->price_coins, 'refund_prebot_failed', [
+                    'prebot_id' => $prebot->id,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
 
-            throw new DisplayException('Bot deployment failed and your coins were refunded. Please try again.');
+            throw new DisplayException(
+                $isPremiumFree
+                    ? 'Bot deployment failed: '.$exception->getMessage()
+                    : 'Bot deployment failed and your coins were refunded: '.$exception->getMessage()
+            );
         }
 
         return new JsonResponse([
             'balance' => $user->coins_balance,
             'server_id' => $server->uuid,
-            'message' => "Your {$prebot->name} is deploying! Check your server console for the pairing code or QR to link WhatsApp.",
+            'premium_free' => $isPremiumFree,
+            'message' => $isPremiumFree
+                ? "Your {$prebot->name} is deploying! 👑 Premium — no coins charged. Check your server console for the pairing code or QR to link WhatsApp."
+                : "Your {$prebot->name} is deploying! Check your server console for the pairing code or QR to link WhatsApp.",
         ], JsonResponse::HTTP_CREATED);
     }
 }

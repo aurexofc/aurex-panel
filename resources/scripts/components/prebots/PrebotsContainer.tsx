@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useStoreState } from 'easy-peasy';
+import { ApplicationStore } from '@/state';
 import PageContentBlock from '@/components/elements/PageContentBlock';
 import ContentBox from '@/components/elements/ContentBox';
 import Button from '@/components/elements/Button';
@@ -71,6 +73,7 @@ const SpecCell = styled.div`
 export default () => {
     const t = useTranslation();
     const { clearFlashes, addFlash } = useFlash();
+    const isPremium = useStoreState((state: ApplicationStore) => state.user.data!.isPremium);
     const [balance, setBalance] = useState(0);
     const [prebots, setPrebots] = useState<Prebot[]>([]);
     const [loading, setLoading] = useState(true);
@@ -162,10 +165,17 @@ export default () => {
                                 </SpecGrid>
 
                                 <div className={'mt-4 flex items-center justify-between'}>
-                                    <div className={'flex items-center gap-2 text-xl font-black'}>
-                                        <FontAwesomeIcon icon={faCoins} className={'text-[var(--aurex-400)]'} />
-                                        {prebot.price_coins.toLocaleString()}
-                                    </div>
+                                    {isPremium ? (
+                                        <div className={'flex items-center gap-2 text-xl font-black text-[var(--aurex-400)]'}>
+                                            <FontAwesomeIcon icon={faCrown} />
+                                            {t.store.freeBadge}
+                                        </div>
+                                    ) : (
+                                        <div className={'flex items-center gap-2 text-xl font-black'}>
+                                            <FontAwesomeIcon icon={faCoins} className={'text-[var(--aurex-400)]'} />
+                                            {prebot.price_coins.toLocaleString()}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <Input
@@ -177,7 +187,7 @@ export default () => {
 
                                 <Button
                                     className={'mt-3 w-full'}
-                                    disabled={buying === prebot.id || balance < prebot.price_coins}
+                                    disabled={buying === prebot.id || (!isPremium && balance < prebot.price_coins)}
                                     onClick={() => deploy(prebot)}
                                 >
                                     {buying === prebot.id ? (
