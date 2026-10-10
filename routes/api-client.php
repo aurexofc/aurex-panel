@@ -63,6 +63,9 @@ Route::prefix('/store')->group(function () {
     Route::post('/purchase', [Client\StoreController::class, 'purchase'])
         ->middleware('throttle:5,1')
         ->name('api:client.store.purchase');
+    Route::post('/create-direct', [Client\StoreController::class, 'createDirect'])
+        ->middleware('throttle:5,1')
+        ->name('api:client.store.create-direct');
 });
 
 /*

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useStoreState } from 'easy-peasy';
+import { ApplicationStore } from '@/state';
 import PageContentBlock from '@/components/elements/PageContentBlock';
 import ContentBox from '@/components/elements/ContentBox';
 import Button from '@/components/elements/Button';
@@ -17,7 +19,7 @@ import {
     faShoppingCart,
     faCrown,
 } from '@fortawesome/free-solid-svg-icons';
-import { getStore, getLedger, purchasePlan, ServerPlan, CoinEntry } from '@/api/store';
+import { getStore, getLedger, purchasePlan, createDirectServer, ServerPlan, CoinEntry } from '@/api/store';
 import EarnCoinsContainer from '@/components/store/EarnCoinsContainer';
 import BuyCoinsContainer from '@/components/store/BuyCoinsContainer';
 import ReferralsContainer from '@/components/store/ReferralsContainer';
@@ -123,6 +125,7 @@ export default () => {
     const t = useTranslation();
     const { clearFlashes, clearAndAddHttpError } = useFlashKey('store');
     const { addFlash } = useFlash();
+    const isPremium = useStoreState((state: ApplicationStore) => state.user.data!.isPremium);
     const [loading, setLoading] = useState(true);
     const [balance, setBalance] = useState(0);
     const [plans, setPlans] = useState<ServerPlan[]>([]);
@@ -130,6 +133,8 @@ export default () => {
     const [buying, setBuying] = useState<ServerPlan | null>(null);
     const [serverName, setServerName] = useState('');
     const [purchasing, setPurchasing] = useState(false);
+    const [directName, setDirectName] = useState('');
+    const [creatingDirect, setCreatingDirect] = useState(false);
 
     const load = (withSpinner = true) => {
         if (withSpinner) setLoading(true);
@@ -168,6 +173,20 @@ export default () => {
             .then(() => setPurchasing(false));
     };
 
+    const doCreateDirect = () => {
+        if (!directName.trim()) return;
+        setCreatingDirect(true);
+        clearFlashes();
+        createDirectServer(directName.trim())
+            .then((result) => {
+                setDirectName('');
+                addFlash({ key: 'store', type: 'success', title: t.store.serverCreated, message: result.message });
+                load(false);
+            })
+            .catch((error) => clearAndAddHttpError(error))
+            .then(() => setCreatingDirect(false));
+    };
+
     return (
         <PageContentBlock title={t.store.title} showFlashKey={'store'}>
             <div css={tw`flex items-center justify-between mt-6 flex-wrap gap-4`}>
@@ -182,12 +201,39 @@ export default () => {
 
             {loading ? (
                 <Spinner centered />
-            ) : plans.length === 0 ? (
-                <p css={tw`text-panel-text-dim mt-8 text-center`}>
-                    {t.store.noPlans}
-                </p>
             ) : (
-                <PlanGrid>
+                <>
+                    {isPremium && (
+                        <ContentBox title={t.store.directTitle} css={tw`mt-6`}>
+                            <p css={tw`text-panel-text-dim mb-1`}>{t.store.directTagline}</p>
+                            <p css={tw`text-sm mb-4`} style={{ color: 'rgb(var(--aurex-400))' }}>
+                                <FontAwesomeIcon icon={faMicrochip} css={tw`mr-2`} />
+                                {t.store.directSpecs}
+                            </p>
+                            <div css={tw`flex gap-4 items-end flex-wrap`}>
+                                <div css={tw`flex-1 min-w-[200px]`}>
+                                    <Input
+                                        placeholder={t.store.directPlaceholder}
+                                        value={directName}
+                                        onChange={(e) => setDirectName(e.target.value)}
+                                    />
+                                </div>
+                                <Button
+                                    color={'primary'}
+                                    disabled={creatingDirect || !directName.trim()}
+                                    onClick={doCreateDirect}
+                                >
+                                    {creatingDirect ? t.store.creating : t.store.confirmCreate}
+                                </Button>
+                            </div>
+                        </ContentBox>
+                    )}
+                    {plans.length === 0 ? (
+                        <p css={tw`text-panel-text-dim mt-8 text-center`}>
+                            {t.store.noPlans}
+                        </p>
+                    ) : (
+                        <PlanGrid>
                     {plans.map((plan, i) => {
                         const affordable = balance >= plan.price_coins;
                         return (
@@ -239,16 +285,31 @@ export default () => {
                                         <div css={tw`mt-5 pt-5 flex items-center justify-between gap-3`}
                                             style={{ borderTop: '1px solid rgb(var(--aurex-border) / 0.5)' }}
                                         >
-                                            <PriceTag>
-                                                <FontAwesomeIcon icon={faCoins} css={tw`mr-2 text-xl`} />
-                                                {plan.price_coins.toLocaleString()}
-                                            </PriceTag>
-                                            <GoldButton disabled={!affordable} onClick={() => setBuying(plan)}>
-                                                <FontAwesomeIcon icon={faShoppingCart} />
-                                                {t.store.buy}
-                                            </GoldButton>
+                                            {isPremium ? (
+                                                <>
+                                                    <PriceTag style={{ color: 'rgb(var(--aurex-400))' }}>
+                                                        <FontAwesomeIcon icon={faCrown} css={tw`mr-2 text-xl`} />
+                                                        {t.store.freeBadge}
+                                                    </PriceTag>
+                                                    <GoldButton onClick={() => setBuying(plan)}>
+                                                        <FontAwesomeIcon icon={faShoppingCart} />
+                                                        {t.store.createFree}
+                                                    </GoldButton>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <PriceTag>
+                                                        <FontAwesomeIcon icon={faCoins} css={tw`mr-2 text-xl`} />
+                                                        {plan.price_coins.toLocaleString()}
+                                                    </PriceTag>
+                                                    <GoldButton disabled={!affordable} onClick={() => setBuying(plan)}>
+                                                        <FontAwesomeIcon icon={faShoppingCart} />
+                                                        {t.store.buy}
+                                                    </GoldButton>
+                                                </>
+                                            )}
                                         </div>
-                                        {!affordable && (
+                                        {!isPremium && !affordable && (
                                             <p css={tw`text-xs text-panel-text-dim mt-2 text-right`}>
                                                 {t.store.notEnoughCoins}
                                             </p>
@@ -259,12 +320,14 @@ export default () => {
                         );
                     })}
                 </PlanGrid>
+                    )}
+                </>
             )}
 
             {buying && (
-                <ContentBox title={t.store.buyTitle(buying.name)} css={tw`mt-8`}>
+                <ContentBox title={isPremium ? t.store.createTitle(buying.name) : t.store.buyTitle(buying.name)} css={tw`mt-8`}>
                     <p css={tw`text-panel-text-dim mb-4`}>
-                        {t.store.purchaseHint(buying.price_coins.toLocaleString())}
+                        {isPremium ? t.store.createHint : t.store.purchaseHint(buying.price_coins.toLocaleString())}
                     </p>
                     <div css={tw`flex gap-4 items-end flex-wrap`}>
                         <div css={tw`flex-1 min-w-[200px]`}>
@@ -275,7 +338,7 @@ export default () => {
                             />
                         </div>
                         <Button color={'primary'} disabled={purchasing || !serverName.trim()} onClick={doPurchase}>
-                            {purchasing ? t.store.creating : t.store.confirmPurchase(buying.price_coins.toLocaleString())}
+                            {purchasing ? t.store.creating : isPremium ? t.store.confirmCreate : t.store.confirmPurchase(buying.price_coins.toLocaleString())}
                         </Button>
                         <Button onClick={() => setBuying(null)}>{t.store.cancel}</Button>
                     </div>

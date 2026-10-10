@@ -35,6 +35,14 @@ export const getLedger = (): Promise<{ balance: number; entries: CoinEntry[] }> 
 export const purchasePlan = (planId: number, name: string): Promise<PurchaseResult> =>
     http.post('/api/client/store/purchase', { plan_id: planId, name }).then(({ data }) => data);
 
+export interface DirectCreateResult {
+    server_id: string;
+    message: string;
+}
+
+export const createDirectServer = (name: string): Promise<DirectCreateResult> =>
+    http.post('/api/client/store/create-direct', { name }).then(({ data }) => data);
+
 // --- Rewarded ads ---
 
 export interface AdStatus {

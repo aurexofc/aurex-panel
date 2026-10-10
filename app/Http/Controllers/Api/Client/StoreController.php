@@ -71,7 +71,9 @@ class StoreController extends ClientApiController
             throw new DisplayException($msg);
         }
 
-        if ($user->coins_balance < $plan->price_coins) {
+        $isPremiumFree = $user->is_premium;
+
+        if (!$isPremiumFree && $user->coins_balance < $plan->price_coins) {
             throw new DisplayException('Insufficient coins. Watch ads or invite friends to earn more.');
         }
 
@@ -92,10 +94,13 @@ class StoreController extends ClientApiController
         }
 
         // Deduct first so a double-submit cannot create two servers.
-        $user->spendCoins($plan->price_coins, 'server_purchase', [
-            'plan_id' => $plan->id,
-            'plan_name' => $plan->name,
-        ]);
+        // Premium users create servers free — no coin deduction.
+        if (!$isPremiumFree) {
+            $user->spendCoins($plan->price_coins, 'server_purchase', [
+                'plan_id' => $plan->id,
+                'plan_name' => $plan->name,
+            ]);
+        }
 
         try {
             $server = $this->creationService->handle([
@@ -114,23 +119,102 @@ class StoreController extends ClientApiController
                 'database_limit' => 0,
                 'allocation_limit' => 0,
                 'backup_limit' => 0,
-                'description' => "Aurex plan: {$plan->name} ({$plan->duration_days} days)",
+                'description' => $isPremiumFree
+                    ? "Aurex premium free: {$plan->name} ({$plan->duration_days} days)"
+                    : "Aurex plan: {$plan->name} ({$plan->duration_days} days)",
             ]);
         } catch (\Throwable $exception) {
             // Compensating refund — the creation service already cleans up
             // the half-created server on daemon failures.
-            $user->awardCoins($plan->price_coins, 'refund_server_failed', [
-                'plan_id' => $plan->id,
-                'error' => $exception->getMessage(),
-            ]);
+            if (!$isPremiumFree) {
+                $user->awardCoins($plan->price_coins, 'refund_server_failed', [
+                    'plan_id' => $plan->id,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
 
-            throw new DisplayException('Server creation failed and your coins were refunded. Please try again.');
+            throw new DisplayException(
+                $isPremiumFree
+                    ? 'Server creation failed. Please try again.'
+                    : 'Server creation failed and your coins were refunded. Please try again.'
+            );
         }
 
         return new JsonResponse([
             'balance' => $user->coins_balance,
             'server_id' => $server->uuid,
-            'message' => "Your {$plan->name} server is being installed!",
+            'premium_free' => $isPremiumFree,
+            'message' => $isPremiumFree
+                ? "Your {$plan->name} server is being installed! 👑 Premium — no coins charged."
+                : "Your {$plan->name} server is being installed!",
+        ], JsonResponse::HTTP_CREATED);
+    }
+        /**
+     * Premium-only: create a Node.js server directly, no coins, no PreBot.
+     * Uses a solid default spec (2GB RAM / 100% CPU / 6GB disk).
+     */
+    public function createDirect(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|min:1|max:191',
+        ]);
+
+        $user = $request->user();
+
+        if (!$user->is_premium) {
+            throw new DisplayException('Direct server creation is a 👑 Premium perk. Upgrade to create servers instantly!');
+        }
+
+        // Enforce server limits: premium up to their package limit.
+        $serverCount = $user->servers()->count();
+        if ($serverCount >= $user->max_servers) {
+            throw new DisplayException("You already own {$serverCount} servers (your premium limit is {$user->max_servers}).");
+        }
+
+        $allocation = Allocation::query()->whereNull('server_id')->orderBy('id')->first();
+        if (!$allocation) {
+            throw new DisplayException('No server capacity available right now. Please try again later.');
+        }
+
+        // Find a Node.js egg, fall back to the first available egg.
+        $egg = Egg::query()->where('name', 'like', '%node%')->first()
+            ?? Egg::query()->first();
+        if (!$egg) {
+            throw new DisplayException('No server type is configured yet. Please contact support.');
+        }
+
+        $images = $egg->docker_images ?? [];
+        $image = is_array($images) ? reset($images) : $images;
+        if (!$image) {
+            throw new DisplayException('The selected server type has no docker image. Please contact support.');
+        }
+
+        try {
+            $server = $this->creationService->handle([
+                'name' => $data['name'],
+                'owner_id' => $user->id,
+                'egg_id' => $egg->id,
+                'docker_image' => $image,
+                'startup' => $egg->startup,
+                'environment' => [],
+                'allocation_id' => $allocation->id,
+                'memory' => 2048,
+                'swap' => 0,
+                'io' => 500,
+                'cpu' => 100,
+                'disk' => 6144,
+                'database_limit' => 0,
+                'allocation_limit' => 0,
+                'backup_limit' => 0,
+                'description' => 'Aurex premium direct Node.js server',
+            ]);
+        } catch (\Throwable $exception) {
+            throw new DisplayException('Server creation failed. Please try again.');
+        }
+
+        return new JsonResponse([
+            'server_id' => $server->uuid,
+            'message' => 'Your Node.js server is being installed! 👑',
         ], JsonResponse::HTTP_CREATED);
     }
 }
