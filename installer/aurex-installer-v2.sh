@@ -180,10 +180,10 @@ install_composer_deps() {
 build_frontend() {
   output "Building frontend (this takes a while)..."
   cd "$AUREX_DIR"
-  # npm cache dir must be writable by www-data (EACCES fix)
-  mkdir -p /var/www/.npm
-  chown -R www-data:www-data /var/www/.npm
-  sudo -u www-data npm install
+  # npm/composer cache dirs must be writable by www-data (EACCES fix)
+  mkdir -p /var/www/.npm /var/www/.cache
+  chown -R www-data:www-data /var/www/.npm /var/www/.cache
+  sudo -u www-data npm install --legacy-peer-deps
   sudo -u www-data npm run build
   success "Frontend built!"
 }
