@@ -99,7 +99,7 @@ class PrebotController extends ClientApiController
                 'name' => $data['name'],
                 'owner_id' => $user->id,
                 'egg_id' => $egg->id,
-                'docker_image' => $image,
+                'image' => $image,
                 'startup' => $egg->startup,
                 'environment' => $environment,
                 'allocation_id' => $allocation->id,
