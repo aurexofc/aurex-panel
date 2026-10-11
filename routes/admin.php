@@ -260,6 +260,10 @@ Route::group(['prefix' => 'aurex'], function () {
     Route::post('/premium/users', [Admin\Aurex\PremiumUserController::class, 'grant'])->name('admin.aurex.premium.users.grant');
     Route::post('/premium/users/{subscription}/revoke', [Admin\Aurex\PremiumUserController::class, 'revoke'])->name('admin.aurex.premium.users.revoke');
 
+    Route::get('/subadmins', [Admin\Aurex\SubAdminController::class, 'index'])->name('admin.aurex.subadmins');
+    Route::post('/subadmins', [Admin\Aurex\SubAdminController::class, 'grant'])->name('admin.aurex.subadmins.grant');
+    Route::post('/subadmins/{user}/revoke', [Admin\Aurex\SubAdminController::class, 'revoke'])->name('admin.aurex.subadmins.revoke');
+
     Route::get('/coins', [Admin\Aurex\CoinController::class, 'index'])->name('admin.aurex.coins');
     Route::post('/coins/grant', [Admin\Aurex\CoinController::class, 'grant'])->name('admin.aurex.coins.grant');
 

@@ -269,6 +269,14 @@ server {
     index index.php;
     charset utf-8;
 
+    # gzip: compress JS/CSS/JSON (~4-5x smaller) so the panel loads fast on slow networks
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/json application/javascript text/javascript text/xml application/xml application/xml+rss;
+
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }

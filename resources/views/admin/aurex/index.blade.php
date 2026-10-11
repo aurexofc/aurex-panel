@@ -116,6 +116,15 @@
             </div>
         </div>
     </div>
+    <div class="col-xs-12 col-md-4">
+        <div class="box" style="border-top: 3px solid #d4af37;">
+            <div class="box-header with-border"><h3 class="box-title">🛡️ Asif OFC Protection</h3></div>
+            <div class="box-body">
+                <p class="text-muted">Sub-admins get read-only server views. Everything else shows "Access denied by Asif OFC protection".</p>
+                <a href="{{ route('admin.aurex.subadmins') }}" class="btn btn-warning btn-block">Manage Sub-Admins</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row">
